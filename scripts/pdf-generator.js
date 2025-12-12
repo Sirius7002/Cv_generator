@@ -1,774 +1,434 @@
 /**
- * PDFGenerator - Générateur de PDF pour CV
- * Utilise jsPDF pour créer des PDF professionnels
+ * PDFGenerator - Générateur de PDF robuste
  */
 
 class PDFGenerator {
     constructor() {
         this.pdf = null;
+        this.margin = 20;
         this.pageWidth = 210; // A4 en mm
         this.pageHeight = 297; // A4 en mm
-        this.margin = 20;
-        this.currentY = 0;
         this.lineHeight = 5;
-        this.fontSizes = {
-            title: 24,
-            subtitle: 18,
-            heading: 14,
-            subheading: 12,
-            normal: 11,
-            small: 9
-        };
     }
 
-    // ========== GÉNÉRATION PRINCIPALE ==========
     async generatePDF(cvData) {
-        this.showLoading(true);
-        
         try {
-            // Initialiser jsPDF
-            const { jsPDF } = window.jspdf;
-            this.pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            // Générer selon le template
-            switch (cvData.template) {
-                case 'modern':
-                    await this.generateModernPDF(cvData);
-                    break;
-                case 'professional':
-                    await this.generateProfessionalPDF(cvData);
-                    break;
-                case 'creative':
-                    await this.generateCreativePDF(cvData);
-                    break;
-                case 'executive':
-                    await this.generateExecutivePDF(cvData);
-                    break;
-                default:
-                    await this.generateModernPDF(cvData);
-            }
-
-            // Sauvegarder le PDF
-            const fileName = this.getFileName(cvData);
-            this.pdf.save(fileName);
+            this.showLoading(true);
             
-            return Promise.resolve();
+            // Utiliser html2canvas pour capturer exactement l'aperçu
+            return await this.generatePDFWithCanvas(cvData);
             
         } catch (error) {
-            console.error('Erreur lors de la génération du PDF:', error);
-            return Promise.reject(error);
+            console.error('Erreur génération PDF:', error);
+            
+            // Fallback: Génération manuelle
+            return this.generatePDFManually(cvData);
             
         } finally {
             this.showLoading(false);
         }
     }
 
-    // ========== TEMPLATE MODERNE ==========
-    async generateModernPDF(cvData) {
+    // ========== GÉNÉRATION AVEC HTML2CANVAS ==========
+    async generatePDFWithCanvas(cvData) {
+        try {
+            const preview = document.getElementById('cv-preview');
+            if (!preview) throw new Error('Aperçu non trouvé');
+            
+            // Appliquer les styles d'impression
+            const originalStyles = preview.getAttribute('style') || '';
+            preview.style.boxShadow = 'none';
+            preview.style.margin = '0';
+            
+            const canvas = await html2canvas(preview, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: 794, // 210mm * 3.78 (px/mm)
+                height: 1123, // 297mm * 3.78
+                windowWidth: 794
+            });
+            
+            // Restaurer les styles originaux
+            preview.setAttribute('style', originalStyles);
+            
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            const { jsPDF } = window.jspdf;
+            this.pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+                compress: true
+            });
+            
+            // Calculer les dimensions pour remplir la page A4
+            const imgWidth = this.pageWidth;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Centrer l'image sur la page
+            const xPos = (this.pageWidth - imgWidth) / 2;
+            const yPos = (this.pageHeight - imgHeight) / 2;
+            
+            this.pdf.addImage(imgData, 'PNG', xPos, yPos, imgWidth, imgHeight);
+            
+            // Ajouter les métadonnées
+            this.pdf.setProperties({
+                title: `CV - ${cvData.personal.fullName || 'Curriculum Vitae'}`,
+                subject: 'Curriculum Vitae Professionnel',
+                author: cvData.personal.fullName || 'CVBuilder Pro',
+                keywords: 'cv, curriculum vitae, emploi, recrutement',
+                creator: 'CVBuilder Pro'
+            });
+            
+            const fileName = this.getFileName(cvData);
+            this.pdf.save(fileName);
+            
+            return Promise.resolve();
+            
+        } catch (error) {
+            console.error('Erreur fallback PDF:', error);
+            this.showNotification('Erreur lors de la génération du PDF', 'error');
+            return Promise.reject(error);
+        }
+    }
+
+    // ========== GÉNÉRATION MANUELLE (FALLBACK) ==========
+    generatePDFManually(cvData) {
+        const { jsPDF } = window.jspdf;
+        this.pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
         this.currentY = this.margin;
         
-        // En-tête avec dégradé
-        this.drawGradientHeader();
+        // Choisir la méthode selon le template
+        switch (cvData.template) {
+            case 'professional':
+                this.generateProfessionalPDFManual(cvData);
+                break;
+            case 'creative':
+                this.generateCreativePDFManual(cvData);
+                break;
+            case 'executive':
+                this.generateExecutivePDFManual(cvData);
+                break;
+            default:
+                this.generateModernPDFManual(cvData);
+        }
+
+        // Ajouter les métadonnées
+        this.pdf.setProperties({
+            title: `CV - ${cvData.personal.fullName || 'Curriculum Vitae'}`,
+            subject: 'Curriculum Vitae Professionnel',
+            author: cvData.personal.fullName || 'CVBuilder Pro',
+            keywords: 'cv, curriculum vitae, emploi, recrutement',
+            creator: 'CVBuilder Pro'
+        });
+
+        const fileName = this.getFileName(cvData);
+        this.pdf.save(fileName);
+    }
+
+    // ========== MÉTHODES MANUELLES PAR TEMPLATE ==========
+    generateModernPDFManual(cvData) {
+        // Couleurs
+        const primaryColor = [67, 97, 238]; // #4361ee
+        const darkColor = [30, 41, 59]; // #1e293b
+        const grayColor = [100, 116, 139]; // #64748b
         
-        // Nom et profession
-        this.addTitle(cvData.personal.fullName || 'Nom Prénom');
-        this.addSubtitle(cvData.personal.profession || 'Profession');
+        // Header
+        this.pdf.setFillColor(...primaryColor);
+        this.pdf.rect(0, 0, this.pageWidth, 60, 'F');
         
-        // Informations de contact
-        this.addContactInfo(cvData.personal);
+        // Nom
+        this.pdf.setTextColor(255, 255, 255);
+        this.pdf.setFontSize(28);
+        this.pdf.setFont('helvetica', 'bold');
+        this.pdf.text(cvData.personal.fullName || 'Nom Prénom', this.margin, 30);
+        
+        // Profession
+        this.pdf.setFontSize(14);
+        this.pdf.setFont('helvetica', 'normal');
+        this.pdf.text(cvData.personal.profession || 'Profession', this.margin, 38);
+        
+        this.currentY = 60;
+        
+        // Contact
+        this.pdf.setFontSize(10);
+        this.pdf.setTextColor(255, 255, 255, 0.9);
+        
+        let contactY = this.currentY - 15;
+        const contactMargin = this.pageWidth - this.margin - 80;
+        
+        if (cvData.personal.email) {
+            this.pdf.text(`📧 ${cvData.personal.email}`, contactMargin, contactY);
+            contactY += 5;
+        }
+        if (cvData.personal.phone) {
+            this.pdf.text(`📱 ${cvData.personal.phone}`, contactMargin, contactY);
+            contactY += 5;
+        }
+        if (cvData.personal.location) {
+            this.pdf.text(`📍 ${cvData.personal.location}`, contactMargin, contactY);
+        }
+        
+        this.currentY += 10;
+        this.pdf.setTextColor(...darkColor);
         
         // Profil
         if (cvData.personal.summary) {
-            this.addSectionTitle('PROFIL');
-            this.addParagraph(cvData.personal.summary);
+            this.addSectionTitleManual('PROFIL PROFESSIONNEL', primaryColor);
+            this.addParagraphManual(cvData.personal.summary, grayColor);
         }
         
         // Expérience
         if (cvData.experiences.length > 0) {
-            this.addSectionTitle('EXPÉRIENCE PROFESSIONNELLE');
+            this.addSectionTitleManual('EXPÉRIENCE PROFESSIONNELLE', primaryColor);
             cvData.experiences.forEach(exp => {
-                this.addExperience(exp);
+                this.addExperienceManual(exp, primaryColor, darkColor, grayColor);
             });
         }
         
         // Formation
         if (cvData.educations.length > 0) {
-            this.addSectionTitle('FORMATION');
+            this.addSectionTitleManual('FORMATION', primaryColor);
             cvData.educations.forEach(edu => {
-                this.addEducation(edu);
+                this.addEducationManual(edu, primaryColor, darkColor, grayColor);
             });
         }
         
         // Compétences
         if (cvData.skills.length > 0) {
-            this.addSectionTitle('COMPÉTENCES TECHNIQUES');
-            this.addSkills(cvData.skills);
+            this.addSectionTitleManual('COMPÉTENCES TECHNIQUES', primaryColor);
+            this.addSkillsManual(cvData.skills, primaryColor);
         }
         
         // Langues
-        if (cvData.languages.length > 0) {
-            this.addSectionTitle('LANGUES');
-            this.addLanguages(cvData.languages);
+        if (cvData.languages && cvData.languages.length > 0) {
+            this.addSectionTitleManual('LANGUES', primaryColor);
+            this.addLanguagesManual(cvData.languages, primaryColor);
         }
         
-        // Centres d'intérêt
-        if (cvData.interests.length > 0) {
-            this.addSectionTitle('CENTRES D\'INTÉRÊT');
-            this.addInterests(cvData.interests);
-        }
-        
-        // Pied de page
-        this.addFooter();
+        // Footer
+        this.addFooterManual();
     }
 
-    // ========== TEMPLATE PROFESSIONNEL ==========
-    async generateProfessionalPDF(cvData) {
-        this.currentY = this.margin;
-        
-        // Barre latérale
-        this.drawSidebar();
-        
-        // Contenu principal
-        this.pdf.setTextColor(30, 41, 59);
-        
-        // Nom et profession
-        this.pdf.setFontSize(this.fontSizes.title);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.text(cvData.personal.fullName || 'Nom Prénom', 50, 30);
-        
-        this.pdf.setFontSize(this.fontSizes.subtitle);
-        this.pdf.setFont('helvetica', 'normal');
-        this.pdf.text(cvData.personal.profession || 'Profession', 50, 37);
-        
-        this.currentY = 45;
-        
-        // Profil
-        if (cvData.personal.summary) {
-            this.pdf.setFontSize(this.fontSizes.heading);
-            this.pdf.setFont('helvetica', 'bold');
-            this.pdf.text('PROFIL', 50, this.currentY);
-            
-            this.pdf.setFontSize(this.fontSizes.normal);
-            this.pdf.setFont('helvetica', 'normal');
-            const profileLines = this.wrapText(cvData.personal.summary, 140);
-            profileLines.forEach(line => {
-                this.pdf.text(line, 50, this.currentY + 7);
-                this.currentY += 5;
-            });
-            this.currentY += 10;
-        }
-        
-        // Expérience avec timeline
-        if (cvData.experiences.length > 0) {
-            this.pdf.setFontSize(this.fontSizes.heading);
-            this.pdf.setFont('helvetica', 'bold');
-            this.pdf.text('EXPÉRIENCE', 50, this.currentY);
-            
-            this.currentY += 7;
-            
-            cvData.experiences.forEach((exp, index) => {
-                // Point de timeline
-                this.pdf.setFillColor(99, 102, 241);
-                this.pdf.circle(45, this.currentY - 1, 1.5, 'F');
-                
-                // Ligne verticale
-                if (index < cvData.experiences.length - 1) {
-                    this.pdf.setDrawColor(99, 102, 241);
-                    this.pdf.setLineWidth(0.5);
-                    this.pdf.line(45, this.currentY, 45, this.currentY + 25);
-                }
-                
-                // Contenu
-                this.pdf.setFontSize(this.fontSizes.subheading);
-                this.pdf.setFont('helvetica', 'bold');
-                this.pdf.text(exp.title || 'Poste', 50, this.currentY);
-                
-                this.pdf.setFontSize(this.fontSizes.small);
-                this.pdf.setFont('helvetica', 'italic');
-                this.pdf.setTextColor(99, 102, 241);
-                this.pdf.text(`${exp.company || 'Entreprise'} | ${exp.period || 'Période'}`, 50, this.currentY + 4);
-                
-                if (exp.description) {
-                    this.pdf.setFontSize(this.fontSizes.small);
-                    this.pdf.setFont('helvetica', 'normal');
-                    this.pdf.setTextColor(71, 85, 105);
-                    const lines = this.wrapText(exp.description, 140);
-                    lines.forEach((line, i) => {
-                        this.pdf.text(`• ${line}`, 52, this.currentY + 9 + (i * 4));
-                    });
-                    this.currentY += 9 + (lines.length * 4);
-                }
-                
-                this.currentY += 15;
-            });
-        }
-        
-        // Compétences dans la sidebar
-        this.addSkillsToSidebar(cvData.skills);
-    }
-
-    // ========== TEMPLATE CRÉATIF ==========
-    async generateCreativePDF(cvData) {
-        this.currentY = this.margin;
-        
-        // Fond coloré
-        this.pdf.setFillColor(240, 147, 251, 0.1);
-        this.pdf.rect(0, 0, this.pageWidth, 50, 'F');
-        
-        // Nom stylisé
-        this.pdf.setFontSize(28);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.setTextColor(240, 147, 251);
-        this.pdf.text(cvData.personal.fullName || 'Nom Prénom', this.margin, 30);
-        
-        // Profession
-        this.pdf.setFontSize(16);
-        this.pdf.setTextColor(245, 87, 108);
-        this.pdf.text(cvData.personal.profession || 'Profession', this.margin, 40);
-        
-        this.currentY = 55;
-        
-        // Cartes de contact
-        this.addContactCards(cvData.personal);
-        
-        // Sections avec icônes
-        if (cvData.personal.summary) {
-            this.addIconSection('PROFIL', 'user', cvData.personal.summary);
-        }
-        
-        if (cvData.experiences.length > 0) {
-            this.addIconSection('EXPÉRIENCE', 'briefcase', '', cvData.experiences);
-        }
-        
-        if (cvData.skills.length > 0) {
-            this.addBubbleSkills(cvData.skills);
-        }
-    }
-
-    // ========== TEMPLATE EXECUTIVE ==========
-    async generateExecutivePDF(cvData) {
-        this.currentY = this.margin;
-        
-        // Barre latérale gauche
-        this.pdf.setFillColor(15, 23, 42);
-        this.pdf.rect(0, 0, 40, this.pageHeight, 'F');
-        
-        // Nom
-        this.pdf.setFontSize(22);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.setTextColor(26, 26, 26);
-        this.pdf.text(cvData.personal.fullName || 'Nom Prénom', 45, 30);
-        
-        // Profession
-        this.pdf.setFontSize(14);
-        this.pdf.setFont('helvetica', 'italic');
-        this.pdf.setTextColor(75, 85, 99);
-        this.pdf.text(cvData.personal.profession || 'Profession', 45, 38);
-        
-        // Ligne de séparation
-        this.pdf.setDrawColor(229, 231, 235);
-        this.pdf.setLineWidth(0.5);
-        this.pdf.line(45, 45, this.pageWidth - this.margin, 45);
-        
-        this.currentY = 50;
-        
-        // Contact dans la sidebar
-        this.pdf.setTextColor(255, 255, 255);
-        this.pdf.setFontSize(10);
-        this.pdf.setFont('helvetica', 'normal');
-        
-        let contactY = 50;
-        if (cvData.personal.email) {
-            this.pdf.text(`📧 ${cvData.personal.email}`, 10, contactY);
-            contactY += 6;
-        }
-        if (cvData.personal.phone) {
-            this.pdf.text(`📱 ${cvData.personal.phone}`, 10, contactY);
-            contactY += 6;
-        }
-        if (cvData.personal.location) {
-            this.pdf.text(`📍 ${cvData.personal.location}`, 10, contactY);
-            contactY += 10;
-        }
-        
-        // Compétences dans la sidebar
-        if (cvData.skills.length > 0) {
-            this.pdf.setFontSize(11);
-            this.pdf.setFont('helvetica', 'bold');
-            this.pdf.text('EXPERTISE', 10, contactY);
-            contactY += 8;
-            
-            this.pdf.setFontSize(9);
-            this.pdf.setFont('helvetica', 'normal');
-            cvData.skills.forEach(skill => {
-                this.pdf.text(`• ${skill.trim()}`, 12, contactY);
-                contactY += 5;
-            });
-        }
-        
-        // Contenu principal
-        this.currentY = 50;
-        
-        // Profil
-        if (cvData.personal.summary) {
-            this.addExecutiveSection('PROFIL');
-            this.addParagraph(cvData.personal.summary, 45);
-        }
-        
-        // Expérience
-        if (cvData.experiences.length > 0) {
-            this.addExecutiveSection('EXPÉRIENCE');
-            cvData.experiences.forEach(exp => {
-                this.addExecutiveItem(exp);
-            });
-        }
-        
-        // Formation
-        if (cvData.educations.length > 0) {
-            this.addExecutiveSection('FORMATION');
-            cvData.educations.forEach(edu => {
-                this.addExecutiveItem(edu, true);
-            });
-        }
-    }
-
-    // ========== MÉTHODES DE DESSIN ==========
-    drawGradientHeader() {
-        // Dégradé pour l'en-tête moderne
-        const gradient = this.pdf.createLinearGradient(0, 0, this.pageWidth, 40);
-        gradient.addColorStop(0, '#667eea');
-        gradient.addColorStop(1, '#764ba2');
-        
-        this.pdf.setFillColor(102, 126, 234);
-        this.pdf.rect(0, 0, this.pageWidth, 40, 'F');
-        
-        // Texte en blanc
-        this.pdf.setTextColor(255, 255, 255);
-    }
-
-    drawSidebar() {
-        // Sidebar pour template professionnel
-        this.pdf.setFillColor(30, 41, 59);
-        this.pdf.rect(0, 0, 40, this.pageHeight, 'F');
-        
-        // Photo de profil
-        this.pdf.setFillColor(255, 255, 255);
-        this.pdf.circle(20, 60, 15, 'F');
-        
-        // Texte en blanc dans la sidebar
-        this.pdf.setTextColor(255, 255, 255);
-    }
-
-    // ========== MÉTHODES D'AJOUT DE CONTENU ==========
-    addTitle(text) {
-        this.pdf.setFontSize(this.fontSizes.title);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.text(text, this.margin, this.currentY);
-        this.currentY += 10;
-    }
-
-    addSubtitle(text) {
-        this.pdf.setFontSize(this.fontSizes.subtitle);
-        this.pdf.setFont('helvetica', 'normal');
-        this.pdf.text(text, this.margin, this.currentY);
-        this.currentY += 7;
-    }
-
-    addSectionTitle(text) {
-        if (this.currentY > this.pageHeight - 40) {
+    // ========== MÉTHODES DE BASE MANUELLES ==========
+    addSectionTitleManual(title, color) {
+        if (this.currentY > this.pageHeight - 30) {
             this.pdf.addPage();
             this.currentY = this.margin;
         }
         
-        this.pdf.setFontSize(this.fontSizes.heading);
+        this.pdf.setFontSize(14);
         this.pdf.setFont('helvetica', 'bold');
-        this.pdf.setTextColor(99, 102, 241);
-        this.pdf.text(text, this.margin, this.currentY);
+        this.pdf.setTextColor(...color);
+        this.pdf.text(title, this.margin, this.currentY);
         
         // Ligne de séparation
-        this.pdf.setDrawColor(99, 102, 241);
+        this.pdf.setDrawColor(...color);
         this.pdf.setLineWidth(0.5);
         this.pdf.line(this.margin, this.currentY + 2, this.margin + 30, this.currentY + 2);
         
         this.currentY += 10;
     }
 
-    addContactInfo(personal) {
-        this.pdf.setFontSize(this.fontSizes.small);
+    addParagraphManual(text, color) {
+        this.pdf.setFontSize(11);
         this.pdf.setFont('helvetica', 'normal');
-        this.pdf.setTextColor(100, 116, 139);
+        this.pdf.setTextColor(...color);
         
-        let contactX = this.margin;
-        const contactY = this.currentY;
-        
-        if (personal.email) {
-            this.pdf.text(`📧 ${personal.email}`, contactX, contactY);
-            contactX += 60;
-        }
-        
-        if (personal.phone) {
-            this.pdf.text(`📱 ${personal.phone}`, contactX, contactY);
-            contactX += 50;
-        }
-        
-        if (personal.location) {
-            this.pdf.text(`📍 ${personal.location}`, contactX, contactY);
-        }
-        
-        this.currentY += 10;
-    }
-
-    addParagraph(text, x = this.margin) {
-        this.pdf.setFontSize(this.fontSizes.normal);
-        this.pdf.setFont('helvetica', 'normal');
-        this.pdf.setTextColor(71, 85, 105);
-        
-        const lines = this.wrapText(text, this.pageWidth - (2 * this.margin));
+        const lines = this.wrapTextManual(text, this.pageWidth - (2 * this.margin));
         lines.forEach(line => {
             if (this.currentY > this.pageHeight - 20) {
                 this.pdf.addPage();
                 this.currentY = this.margin;
             }
-            this.pdf.text(line, x, this.currentY);
+            this.pdf.text(line, this.margin, this.currentY);
             this.currentY += 5;
         });
         
         this.currentY += 5;
     }
 
-    addExperience(exp) {
+    addExperienceManual(exp, primaryColor, darkColor, grayColor) {
         if (this.currentY > this.pageHeight - 40) {
             this.pdf.addPage();
             this.currentY = this.margin;
         }
         
-        // Poste
-        this.pdf.setFontSize(this.fontSizes.subheading);
+        // Titre du poste
+        this.pdf.setFontSize(12);
         this.pdf.setFont('helvetica', 'bold');
-        this.pdf.setTextColor(30, 41, 59);
+        this.pdf.setTextColor(...darkColor);
         this.pdf.text(exp.title || 'Poste', this.margin, this.currentY);
         
         // Entreprise et période
-        this.pdf.setFontSize(this.fontSizes.small);
+        this.pdf.setFontSize(10);
         this.pdf.setFont('helvetica', 'italic');
-        this.pdf.setTextColor(99, 102, 241);
-        this.pdf.text(`${exp.company || 'Entreprise'} | ${exp.period || 'Période'}`, this.margin, this.currentY + 4);
+        this.pdf.setTextColor(...primaryColor);
+        this.pdf.text(`${exp.company || 'Entreprise'} | ${exp.period || 'Période'}`, this.margin, this.currentY + 5);
         
         // Description
         if (exp.description) {
-            this.pdf.setFontSize(this.fontSizes.small);
+            this.pdf.setFontSize(10);
             this.pdf.setFont('helvetica', 'normal');
-            this.pdf.setTextColor(71, 85, 105);
-            const lines = this.wrapText(exp.description, this.pageWidth - (2 * this.margin));
+            this.pdf.setTextColor(...grayColor);
+            const lines = this.wrapTextManual(exp.description, this.pageWidth - (2 * this.margin));
             lines.forEach((line, i) => {
-                this.pdf.text(`• ${line}`, this.margin + 5, this.currentY + 9 + (i * 4));
+                if (i === 0) {
+                    this.pdf.text(`• ${line}`, this.margin + 5, this.currentY + 12 + (i * 5));
+                } else {
+                    this.pdf.text(`  ${line}`, this.margin + 5, this.currentY + 12 + (i * 5));
+                }
             });
-            this.currentY += 9 + (lines.length * 4);
+            this.currentY += 12 + (lines.length * 5);
+        } else {
+            this.currentY += 12;
         }
         
-        this.currentY += 10;
+        this.currentY += 5;
     }
 
-    addEducation(edu) {
+    addEducationManual(edu, primaryColor, darkColor, grayColor) {
         if (this.currentY > this.pageHeight - 30) {
             this.pdf.addPage();
             this.currentY = this.margin;
         }
         
-        this.pdf.setFontSize(this.fontSizes.subheading);
+        this.pdf.setFontSize(12);
         this.pdf.setFont('helvetica', 'bold');
-        this.pdf.setTextColor(30, 41, 59);
+        this.pdf.setTextColor(...darkColor);
         this.pdf.text(edu.degree || 'Diplôme', this.margin, this.currentY);
         
-        this.pdf.setFontSize(this.fontSizes.small);
+        this.pdf.setFontSize(10);
         this.pdf.setFont('helvetica', 'italic');
-        this.pdf.setTextColor(99, 102, 241);
-        this.pdf.text(`${edu.school || 'Établissement'} | ${edu.year || 'Année'}`, this.margin, this.currentY + 4);
+        this.pdf.setTextColor(...primaryColor);
+        this.pdf.text(`${edu.school || 'Établissement'} | ${edu.year || 'Année'}`, this.margin, this.currentY + 5);
         
-        this.currentY += 10;
+        if (edu.description) {
+            this.pdf.setFontSize(10);
+            this.pdf.setFont('helvetica', 'normal');
+            this.pdf.setTextColor(...grayColor);
+            const lines = this.wrapTextManual(edu.description, this.pageWidth - (2 * this.margin));
+            lines.forEach((line, i) => {
+                this.pdf.text(line, this.margin + 5, this.currentY + 12 + (i * 5));
+            });
+            this.currentY += 12 + (lines.length * 5);
+        } else {
+            this.currentY += 15;
+        }
+        
+        this.currentY += 5;
     }
 
-    addSkills(skills) {
+    addSkillsManual(skills, color) {
         const skillsPerLine = 3;
         const skillWidth = (this.pageWidth - (2 * this.margin)) / skillsPerLine - 5;
+        
+        let startX = this.margin;
         
         skills.forEach((skill, index) => {
             if (index % skillsPerLine === 0) {
                 if (this.currentY > this.pageHeight - 20) {
                     this.pdf.addPage();
                     this.currentY = this.margin;
+                    startX = this.margin;
                 }
-                this.currentY += 5;
-            }
-            
-            const x = this.margin + (index % skillsPerLine) * (skillWidth + 5);
-            
-            // Boîte de compétence
-            this.pdf.setFillColor(224, 231, 255);
-            this.pdf.roundedRect(x, this.currentY - 3, skillWidth, 6, 2, 2, 'F');
-            
-            // Texte de la compétence
-            this.pdf.setFontSize(this.fontSizes.small);
-            this.pdf.setTextColor(55, 48, 163);
-            this.pdf.text(skill.trim(), x + 3, this.currentY + 1);
-            
-            if ((index + 1) % skillsPerLine === 0) {
                 this.currentY += 10;
             }
-        });
-        
-        this.currentY += 10;
-    }
-
-    addSkillsToSidebar(skills) {
-        let skillY = 120;
-        this.pdf.setTextColor(255, 255, 255);
-        this.pdf.setFontSize(10);
-        
-        skills.forEach(skill => {
-            // Barre de progression
-            this.pdf.setFillColor(99, 102, 241);
-            const width = 30 + (Math.random() * 10);
-            this.pdf.rect(10, skillY - 2, width, 4, 'F');
             
-            // Nom de la compétence
-            this.pdf.text(skill.trim(), 45, skillY + 1);
+            const x = startX + (index % skillsPerLine) * (skillWidth + 5);
             
-            skillY += 8;
-        });
-    }
-
-    addLanguages(languages) {
-        this.pdf.setFontSize(this.fontSizes.small);
-        this.pdf.setFont('helvetica', 'normal');
-        this.pdf.setTextColor(71, 85, 105);
-        
-        languages.forEach(lang => {
-            if (this.currentY > this.pageHeight - 20) {
-                this.pdf.addPage();
-                this.currentY = this.margin;
+            // Boîte de compétence
+            this.pdf.setFillColor(...color, 0.1);
+            this.pdf.roundedRect(x, this.currentY, skillWidth, 8, 4, 4, 'F');
+            
+            // Bordure
+            this.pdf.setDrawColor(...color, 0.3);
+            this.pdf.setLineWidth(0.2);
+            this.pdf.roundedRect(x, this.currentY, skillWidth, 8, 4, 4, 'S');
+            
+            // Texte
+            this.pdf.setFontSize(9);
+            this.pdf.setTextColor(...color);
+            this.pdf.text(skill.trim(), x + 4, this.currentY + 5);
+            
+            if ((index + 1) % skillsPerLine === 0) {
+                this.currentY += 12;
             }
-            
-            this.pdf.text(`• ${lang.trim()}`, this.margin, this.currentY);
-            this.currentY += 5;
         });
+        
+        if (skills.length % skillsPerLine !== 0) {
+            this.currentY += 12;
+        }
         
         this.currentY += 5;
     }
 
-    addInterests(interests) {
-        interests.forEach(interest => {
-            if (this.currentY > this.pageHeight - 20) {
-                this.pdf.addPage();
-                this.currentY = this.margin;
+    addLanguagesManual(languages, color) {
+        const languagesPerLine = 2;
+        const langWidth = (this.pageWidth - (2 * this.margin)) / languagesPerLine - 10;
+        
+        languages.forEach((lang, index) => {
+            if (index % languagesPerLine === 0) {
+                if (this.currentY > this.pageHeight - 20) {
+                    this.pdf.addPage();
+                    this.currentY = this.margin;
+                }
+                this.currentY += 8;
             }
             
-            // Cercle d'intérêt
-            this.pdf.setFillColor(241, 245, 249);
-            this.pdf.circle(this.margin + 5, this.currentY, 3, 'F');
+            const x = this.margin + (index % languagesPerLine) * (langWidth + 10);
+            const level = lang.level || 3;
+            const levelPercent = (level / 5) * 100;
             
-            this.pdf.setFontSize(this.fontSizes.small);
-            this.pdf.setTextColor(71, 85, 105);
-            this.pdf.text(interest.trim(), this.margin + 10, this.currentY + 1);
+            // Nom de la langue
+            this.pdf.setFontSize(10);
+            this.pdf.setFont('helvetica', 'bold');
+            this.pdf.setTextColor(...color);
+            this.pdf.text(lang.name || lang, x, this.currentY);
             
-            this.currentY += 7;
-        });
-    }
-
-    addContactCards(personal) {
-        const cardWidth = 55;
-        let cardX = this.margin;
-        const cardY = this.currentY;
-        
-        if (personal.email) {
-            this.drawContactCard(cardX, cardY, cardWidth, '📧', 'Email', personal.email);
-            cardX += cardWidth + 5;
-        }
-        
-        if (personal.phone) {
-            this.drawContactCard(cardX, cardY, cardWidth, '📱', 'Téléphone', personal.phone);
-            cardX += cardWidth + 5;
-        }
-        
-        if (personal.location) {
-            this.drawContactCard(cardX, cardY, cardWidth, '📍', 'Localisation', personal.location);
-        }
-        
-        this.currentY += 30;
-    }
-
-    drawContactCard(x, y, width, icon, label, value) {
-        // Carte
-        this.pdf.setFillColor(255, 255, 255);
-        this.pdf.roundedRect(x, y, width, 25, 3, 3, 'F');
-        this.pdf.setDrawColor(226, 232, 240);
-        this.pdf.setLineWidth(0.5);
-        this.pdf.roundedRect(x, y, width, 25, 3, 3, 'D');
-        
-        // Icône
-        this.pdf.setFontSize(12);
-        this.pdf.text(icon, x + 5, y + 7);
-        
-        // Label
-        this.pdf.setFontSize(8);
-        this.pdf.setTextColor(100, 116, 139);
-        this.pdf.text(label, x + 15, y + 7);
-        
-        // Valeur
-        this.pdf.setFontSize(9);
-        this.pdf.setTextColor(30, 41, 59);
-        const lines = this.wrapText(value, width - 10);
-        lines.forEach((line, i) => {
-            this.pdf.text(line, x + 5, y + 15 + (i * 4));
-        });
-    }
-
-    addIconSection(title, icon, content, items = []) {
-        if (this.currentY > this.pageHeight - 50) {
-            this.pdf.addPage();
-            this.currentY = this.margin;
-        }
-        
-        // Icône
-        this.pdf.setFontSize(16);
-        this.pdf.setTextColor(240, 147, 251);
-        this.pdf.text(this.getIcon(icon), this.margin, this.currentY);
-        
-        // Titre
-        this.pdf.setFontSize(this.fontSizes.heading);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.setTextColor(30, 41, 59);
-        this.pdf.text(title, this.margin + 10, this.currentY);
-        
-        this.currentY += 8;
-        
-        // Contenu ou items
-        if (content) {
-            this.addParagraph(content, this.margin + 10);
-        } else if (items.length > 0) {
-            items.forEach(item => {
-                this.pdf.setFontSize(this.fontSizes.subheading);
-                this.pdf.setFont('helvetica', 'bold');
-                this.pdf.text(item.title || item.degree || '', this.margin + 10, this.currentY);
-                
-                this.pdf.setFontSize(this.fontSizes.small);
-                this.pdf.setFont('helvetica', 'italic');
-                this.pdf.setTextColor(245, 87, 108);
-                this.pdf.text(`${item.company || item.school || ''} | ${item.period || item.year || ''}`, 
-                            this.margin + 10, this.currentY + 4);
-                
-                this.currentY += 10;
-            });
-        }
-        
-        this.currentY += 10;
-    }
-
-    addBubbleSkills(skills) {
-        this.pdf.setFontSize(this.fontSizes.heading);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.text('COMPÉTENCES', this.margin, this.currentY);
-        this.currentY += 8;
-        
-        let bubbleX = this.margin;
-        let bubbleY = this.currentY;
-        
-        skills.forEach(skill => {
-            const textWidth = this.pdf.getTextWidth(skill.trim()) + 8;
-            
-            if (bubbleX + textWidth > this.pageWidth - this.margin) {
-                bubbleX = this.margin;
-                bubbleY += 12;
-            }
-            
-            // Bulle
-            this.pdf.setFillColor(240, 147, 251, 0.2);
-            this.pdf.roundedRect(bubbleX, bubbleY, textWidth, 8, 4, 4, 'F');
-            this.pdf.setDrawColor(240, 147, 251);
+            // Barre de niveau
+            this.pdf.setDrawColor(200, 200, 200);
             this.pdf.setLineWidth(0.5);
-            this.pdf.roundedRect(bubbleX, bubbleY, textWidth, 8, 4, 4, 'D');
+            this.pdf.line(x, this.currentY + 3, x + langWidth, this.currentY + 3);
             
-            // Texte
-            this.pdf.setFontSize(this.fontSizes.small);
-            this.pdf.setTextColor(240, 147, 251);
-            this.pdf.text(skill.trim(), bubbleX + 4, bubbleY + 5);
+            // Remplissage
+            this.pdf.setDrawColor(...color);
+            this.pdf.setLineWidth(2);
+            this.pdf.line(x, this.currentY + 3, x + (langWidth * levelPercent / 100), this.currentY + 3);
             
-            bubbleX += textWidth + 5;
+            // Niveau textuel
+            this.pdf.setFontSize(8);
+            this.pdf.setTextColor(100, 100, 100);
+            this.pdf.text(this.getLanguageLevelLabel(level), x + langWidth - 20, this.currentY);
+            
+            if ((index + 1) % languagesPerLine === 0) {
+                this.currentY += 10;
+            }
         });
         
-        this.currentY = bubbleY + 15;
-    }
-
-    addExecutiveSection(title) {
-        if (this.currentY > this.pageHeight - 40) {
-            this.pdf.addPage();
-            this.currentY = this.margin + 10;
-        }
-        
-        this.pdf.setFontSize(this.fontSizes.heading);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.setTextColor(26, 26, 26);
-        this.pdf.text(title, 45, this.currentY);
-        
-        // Ligne sous le titre
-        this.pdf.setDrawColor(26, 26, 26);
-        this.pdf.setLineWidth(1);
-        this.pdf.line(45, this.currentY + 2, 65, this.currentY + 2);
-        
-        this.currentY += 10;
-    }
-
-    addExecutiveItem(item, isEducation = false) {
-        if (this.currentY > this.pageHeight - 30) {
-            this.pdf.addPage();
-            this.currentY = this.margin + 10;
-        }
-        
-        // Titre
-        this.pdf.setFontSize(this.fontSizes.subheading);
-        this.pdf.setFont('helvetica', 'bold');
-        this.pdf.text(item.title || item.degree || '', 45, this.currentY);
-        
-        // Sous-titre
-        this.pdf.setFontSize(this.fontSizes.small);
-        this.pdf.setFont('helvetica', 'italic');
-        this.pdf.setTextColor(75, 85, 99);
-        
-        const subtitle = isEducation 
-            ? `${item.school || 'Établissement'} | ${item.year || 'Année'}`
-            : `${item.company || 'Entreprise'} | ${item.period || 'Période'}`;
-        
-        this.pdf.text(subtitle, 45, this.currentY + 4);
-        
-        // Description
-        if (item.description) {
-            this.pdf.setFontSize(this.fontSizes.small);
-            this.pdf.setFont('helvetica', 'normal');
-            this.pdf.setTextColor(55, 65, 81);
-            const lines = this.wrapText(item.description, 140);
-            lines.forEach((line, i) => {
-                this.pdf.text(line, 47, this.currentY + 9 + (i * 4));
-            });
-            this.currentY += 9 + (lines.length * 4);
+        if (languages.length % languagesPerLine !== 0) {
+            this.currentY += 10;
         }
         
         this.currentY += 10;
     }
 
-    addFooter() {
+    addFooterManual() {
         this.pdf.setFontSize(8);
         this.pdf.setTextColor(100, 116, 139);
         this.pdf.setFont('helvetica', 'italic');
-        this.pdf.text(`CV généré avec CVBuilder Pro - ${new Date().toLocaleDateString('fr-FR')}`, 
+        this.pdf.text(`Généré avec CVBuilder Pro - ${new Date().toLocaleDateString('fr-FR')}`, 
                      this.pageWidth / 2, this.pageHeight - 10, { align: 'center' });
     }
 
     // ========== UTILITAIRES ==========
-    wrapText(text, maxWidth) {
+    wrapTextManual(text, maxWidth) {
         const words = text.split(' ');
         const lines = [];
         let currentLine = '';
@@ -792,34 +452,58 @@ class PDFGenerator {
         return lines;
     }
 
+    getLanguageLevelLabel(level) {
+        const labels = ['Débutant', 'Intermédiaire', 'Bon', 'Courant', 'Natif'];
+        return labels[level - 1] || labels[2];
+    }
+
     getFileName(cvData) {
         const name = cvData.personal.fullName 
-            ? cvData.personal.fullName.replace(/\s+/g, '_')
+            ? cvData.personal.fullName.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '')
             : 'CV';
         const date = new Date().toISOString().split('T')[0];
         return `CV_${name}_${date}.pdf`;
     }
 
-    getIcon(iconName) {
-        const icons = {
-            'user': '👤',
-            'briefcase': '💼',
-            'graduation-cap': '🎓',
-            'code': '💻',
-            'language': '🌐',
-            'heart': '❤️',
-            'envelope': '✉️',
-            'phone': '📱',
-            'map-marker': '📍'
-        };
-        return icons[iconName] || '●';
+    // ========== AUTRES TEMPLATES (simplifiés) ==========
+    generateProfessionalPDFManual(cvData) {
+        this.generateModernPDFManual(cvData);
     }
 
+    generateCreativePDFManual(cvData) {
+        this.generateModernPDFManual(cvData);
+    }
+
+    generateExecutivePDFManual(cvData) {
+        this.generateModernPDFManual(cvData);
+    }
+
+    // ========== LOADING ==========
     showLoading(show) {
         const overlay = document.getElementById('loading-overlay');
         if (overlay) {
             overlay.classList.toggle('active', show);
         }
+    }
+
+    showNotification(message, type = 'info') {
+        const container = document.getElementById('notification-container');
+        if (!container) return;
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        container.appendChild(notification);
+        
+        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
     }
 }
 

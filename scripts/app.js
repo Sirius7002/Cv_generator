@@ -1,15 +1,12 @@
 /**
  * CVBuilder Pro - Application Principale
- * Gestion des données, événements et coordination des modules
  */
 
 class CVBuilderApp {
     constructor() {
         this.cvData = this.getInitialData();
+        this.currentSection = 'editor';
         this.currentZoom = 1;
-        this.currentSection = 'form';
-        this.nextExperienceId = 1;
-        this.nextEducationId = 1;
         
         this.templateLoader = new TemplateLoader();
         this.pdfGenerator = new PDFGenerator();
@@ -17,22 +14,22 @@ class CVBuilderApp {
         this.init();
     }
 
-    // ========== INITIALISATION ==========
     init() {
         console.log('🚀 CVBuilder Pro - Initialisation');
         
-        // Charger les données sauvegardées
+        // Charger les données
         this.loadData();
         
-        // Configurer les écouteurs d'événements
+        // Configurer les événements
         this.setupNavigation();
         this.setupForm();
         this.setupTemplates();
         this.setupActions();
         this.setupPreviewControls();
+        this.setupPhotoUpload();
         
         // Initialiser l'affichage
-        this.updateNavigation();
+        this.showSection(this.currentSection);
         this.updatePreview();
         
         console.log('✅ Application prête !');
@@ -49,7 +46,8 @@ class CVBuilderApp {
                 linkedin: '',
                 github: '',
                 portfolio: '',
-                summary: ''
+                summary: '',
+                photo: ''
             },
             experiences: [],
             educations: [],
@@ -60,6 +58,54 @@ class CVBuilderApp {
         };
     }
 
+    // ========== NAVIGATION ==========
+    setupNavigation() {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = item.dataset.section;
+                if (section) {
+                    this.switchSection(section);
+                }
+            });
+        });
+    }
+
+    switchSection(sectionId) {
+        // Mettre à jour la navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === sectionId) {
+                item.classList.add('active');
+            }
+        });
+
+        // Cacher toutes les sections
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        // Afficher la section demandée
+        const targetSection = document.getElementById(`${sectionId}-section`);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+
+        // Mettre à jour l'aperçu si nécessaire
+        if (sectionId === 'preview') {
+            setTimeout(() => {
+                this.updatePreview();
+                this.resetZoom();
+            }, 100);
+        }
+
+        this.currentSection = sectionId;
+    }
+
+    showSection(sectionId) {
+        this.switchSection(sectionId);
+    }
+
     // ========== GESTION DES DONNÉES ==========
     loadData() {
         const saved = localStorage.getItem('cvData');
@@ -67,16 +113,10 @@ class CVBuilderApp {
             try {
                 const data = JSON.parse(saved);
                 this.cvData = { ...this.getInitialData(), ...data };
-                
-                // S'assurer que les IDs sont uniques
-                this.nextExperienceId = Math.max(...this.cvData.experiences.map(e => e.id || 0), 0) + 1;
-                this.nextEducationId = Math.max(...this.cvData.educations.map(e => e.id || 0), 0) + 1;
-                
                 this.populateForm();
                 this.updateTemplateSelection();
             } catch (error) {
-                console.error('Erreur lors du chargement des données:', error);
-                this.showNotification('Erreur lors du chargement des données sauvegardées', 'error');
+                console.error('Erreur de chargement:', error);
             }
         }
     }
@@ -85,17 +125,17 @@ class CVBuilderApp {
         try {
             localStorage.setItem('cvData', JSON.stringify(this.cvData));
         } catch (error) {
-            console.error('Erreur lors de la sauvegarde:', error);
+            console.error('Erreur de sauvegarde:', error);
         }
     }
 
     // ========== FORMULAIRE ==========
     setupForm() {
         // Champs personnels
-        const fields = ['fullName', 'profession', 'email', 'phone', 'location', 
-                       'linkedin', 'github', 'portfolio', 'summary'];
+        const personalFields = ['fullName', 'profession', 'email', 'phone', 'location', 
+                              'linkedin', 'github', 'portfolio', 'summary'];
         
-        fields.forEach(field => {
+        personalFields.forEach(field => {
             const element = document.getElementById(field);
             if (element) {
                 element.addEventListener('input', (e) => {
@@ -106,13 +146,13 @@ class CVBuilderApp {
             }
         });
 
-        // Compétences, langues et centres d'intérêt
-        ['skills', 'languages', 'interests'].forEach(field => {
+        // Compétences et intérêts
+        ['skills', 'interests'].forEach(field => {
             const element = document.getElementById(field);
             if (element) {
                 element.addEventListener('input', (e) => {
-                    this.cvData[field] = e.target.value
-                        .split(',')
+                    const value = e.target.value;
+                    this.cvData[field] = value.split(',')
                         .map(item => item.trim())
                         .filter(item => item);
                     this.saveData();
@@ -121,36 +161,86 @@ class CVBuilderApp {
             }
         });
 
-        // Boutons d'ajout dynamiques
+        // Boutons d'ajout
         document.getElementById('add-experience')?.addEventListener('click', () => this.addExperience());
         document.getElementById('add-education')?.addEventListener('click', () => this.addEducation());
+        document.getElementById('add-language')?.addEventListener('click', () => this.addLanguage());
+    }
+
+    setupPhotoUpload() {
+        const photoInput = document.getElementById('photo');
+        const preview = document.getElementById('photo-preview');
+        
+        if (photoInput) {
+            photoInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // Vérifier la taille (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        this.showNotification('La photo doit faire moins de 5MB', 'error');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.cvData.personal.photo = event.target.result;
+                        this.saveData();
+                        this.updatePreview();
+                        
+                        if (preview) {
+                            preview.innerHTML = `
+                                <img src="${this.cvData.personal.photo}" 
+                                     style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #4361ee">
+                            `;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     }
 
     populateForm() {
         // Remplir les champs personnels
         Object.keys(this.cvData.personal).forEach(field => {
             const element = document.getElementById(field);
-            if (element) {
+            if (element && field !== 'photo') {
                 element.value = this.cvData.personal[field] || '';
             }
         });
 
+        // Afficher la photo si elle existe
+        if (this.cvData.personal.photo) {
+            const preview = document.getElementById('photo-preview');
+            if (preview) {
+                preview.innerHTML = `
+                    <img src="${this.cvData.personal.photo}" 
+                         style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #4361ee">
+                `;
+            }
+        }
+
         // Remplir les listes
-        document.getElementById('skills').value = this.cvData.skills.join(', ');
-        document.getElementById('languages').value = this.cvData.languages.join(', ');
-        document.getElementById('interests').value = this.cvData.interests.join(', ');
+        const skillsInput = document.getElementById('skills');
+        const interestsInput = document.getElementById('interests');
+        
+        if (skillsInput) skillsInput.value = this.cvData.skills.join(', ');
+        if (interestsInput) interestsInput.value = this.cvData.interests.join(', ');
 
         // Remplir les expériences
         this.cvData.experiences.forEach(exp => this.renderExperience(exp));
 
         // Remplir les formations
         this.cvData.educations.forEach(edu => this.renderEducation(edu));
+
+        // Remplir les langues
+        this.cvData.languages.forEach(lang => this.renderLanguage(lang));
     }
 
     // ========== EXPÉRIENCES ==========
     addExperience() {
         const experience = {
-            id: this.nextExperienceId++,
+            id: Date.now(),
             title: '',
             company: '',
             period: '',
@@ -170,42 +260,42 @@ class CVBuilderApp {
         const html = `
             <div class="dynamic-item" data-id="${experience.id}">
                 <div class="form-grid">
-                    <div class="form-group floating-label">
+                    <div class="input-group floating">
                         <input type="text" 
                                value="${experience.title}"
                                oninput="app.updateExperience(${experience.id}, 'title', this.value)"
                                placeholder="Développeur Full Stack">
                         <label>Poste</label>
-                        <div class="form-underline"></div>
+                        <div class="focus-line"></div>
                     </div>
-                    <div class="form-group floating-label">
+                    <div class="input-group floating">
                         <input type="text" 
                                value="${experience.company}"
                                oninput="app.updateExperience(${experience.id}, 'company', this.value)"
                                placeholder="Nom de l'entreprise">
                         <label>Entreprise</label>
-                        <div class="form-underline"></div>
+                        <div class="focus-line"></div>
                     </div>
-                    <div class="form-group floating-label">
+                    <div class="input-group floating">
                         <input type="text" 
                                value="${experience.period}"
                                oninput="app.updateExperience(${experience.id}, 'period', this.value)"
                                placeholder="2020 - 2023">
                         <label>Période</label>
-                        <div class="form-underline"></div>
+                        <div class="focus-line"></div>
                     </div>
-                    <div class="form-group floating-label full-width">
-                        <textarea 
-                            oninput="app.updateExperience(${experience.id}, 'description', this.value)"
-                            placeholder="Description des responsabilités..."
-                            rows="2">${experience.description}</textarea>
-                        <label>Description</label>
-                        <div class="form-underline"></div>
-                    </div>
+                </div>
+                <div class="input-group floating full-width">
+                    <textarea 
+                        oninput="app.updateExperience(${experience.id}, 'description', this.value)"
+                        placeholder="Description des responsabilités et réalisations..."
+                        rows="3">${experience.description}</textarea>
+                    <label>Description</label>
+                    <div class="focus-line"></div>
                 </div>
                 <button class="btn btn-outline" onclick="app.removeExperience(${experience.id})">
                     <i class="fas fa-trash"></i>
-                    Supprimer cette expérience
+                    Supprimer
                 </button>
             </div>
         `;
@@ -233,7 +323,7 @@ class CVBuilderApp {
     // ========== FORMATIONS ==========
     addEducation() {
         const education = {
-            id: this.nextEducationId++,
+            id: Date.now(),
             degree: '',
             school: '',
             year: '',
@@ -253,42 +343,42 @@ class CVBuilderApp {
         const html = `
             <div class="dynamic-item" data-id="${education.id}">
                 <div class="form-grid">
-                    <div class="form-group floating-label">
+                    <div class="input-group floating">
                         <input type="text" 
                                value="${education.degree}"
                                oninput="app.updateEducation(${education.id}, 'degree', this.value)"
                                placeholder="Master en Informatique">
                         <label>Diplôme</label>
-                        <div class="form-underline"></div>
+                        <div class="focus-line"></div>
                     </div>
-                    <div class="form-group floating-label">
+                    <div class="input-group floating">
                         <input type="text" 
                                value="${education.school}"
                                oninput="app.updateEducation(${education.id}, 'school', this.value)"
                                placeholder="Université Paris-Saclay">
                         <label>Établissement</label>
-                        <div class="form-underline"></div>
+                        <div class="focus-line"></div>
                     </div>
-                    <div class="form-group floating-label">
+                    <div class="input-group floating">
                         <input type="text" 
                                value="${education.year}"
                                oninput="app.updateEducation(${education.id}, 'year', this.value)"
                                placeholder="2022">
                         <label>Année</label>
-                        <div class="form-underline"></div>
+                        <div class="focus-line"></div>
                     </div>
-                    <div class="form-group floating-label full-width">
-                        <textarea 
-                            oninput="app.updateEducation(${education.id}, 'description', this.value)"
-                            placeholder="Description complémentaire..."
-                            rows="2">${education.description}</textarea>
-                        <label>Description</label>
-                        <div class="form-underline"></div>
-                    </div>
+                </div>
+                <div class="input-group floating full-width">
+                    <textarea 
+                        oninput="app.updateEducation(${education.id}, 'description', this.value)"
+                        placeholder="Description complémentaire..."
+                        rows="2">${education.description}</textarea>
+                    <label>Description</label>
+                    <div class="focus-line"></div>
                 </div>
                 <button class="btn btn-outline" onclick="app.removeEducation(${education.id})">
                     <i class="fas fa-trash"></i>
-                    Supprimer cette formation
+                    Supprimer
                 </button>
             </div>
         `;
@@ -313,48 +403,93 @@ class CVBuilderApp {
         this.updatePreview();
     }
 
-    // ========== NAVIGATION ==========
-    setupNavigation() {
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const section = item.dataset.section;
-                this.switchSection(section);
-            });
-        });
+    // ========== LANGUES ==========
+    addLanguage() {
+        const language = {
+            id: Date.now(),
+            name: '',
+            level: 3
+        };
+        
+        this.cvData.languages.push(language);
+        this.saveData();
+        this.renderLanguage(language);
+        this.updatePreview();
     }
 
-    switchSection(sectionId) {
-        this.currentSection = sectionId;
+    renderLanguage(language) {
+        const container = document.getElementById('languages-container');
+        if (!container) return;
+
+        const html = `
+            <div class="dynamic-item" data-id="${language.id}">
+                <div class="form-grid">
+                    <div class="input-group floating">
+                        <input type="text" 
+                               value="${language.name}"
+                               oninput="app.updateLanguage(${language.id}, 'name', this.value)"
+                               placeholder="Français">
+                        <label>Langue</label>
+                        <div class="focus-line"></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Niveau</label>
+                        <div class="language-rating">
+                            ${[1,2,3,4,5].map(star => `
+                                <button type="button" 
+                                        class="star-btn ${star <= language.level ? 'active' : ''}"
+                                        onclick="app.updateLanguageLevel(${language.id}, ${star})">
+                                    ★
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" onclick="app.removeLanguage(${language.id})">
+                    <i class="fas fa-trash"></i>
+                    Supprimer
+                </button>
+            </div>
+        `;
         
-        // Mettre à jour la navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-            if (item.dataset.section === sectionId) {
-                item.classList.add('active');
-            }
-        });
+        container.insertAdjacentHTML('beforeend', html);
+    }
 
-        // Mettre à jour les sections
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.classList.remove('active');
-            if (section.id === `${sectionId}-section`) {
-                section.classList.add('active');
-            }
-        });
-
-        // Mettre à jour l'aperçu si nécessaire
-        if (sectionId === 'preview') {
+    updateLanguage(id, field, value) {
+        const language = this.cvData.languages.find(lang => lang.id === id);
+        if (language) {
+            language[field] = value;
+            this.saveData();
             this.updatePreview();
         }
     }
 
-    updateNavigation() {
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-            if (item.dataset.section === this.currentSection) {
-                item.classList.add('active');
-            }
-        });
+    updateLanguageLevel(id, level) {
+        const language = this.cvData.languages.find(lang => lang.id === id);
+        if (language) {
+            language.level = level;
+            this.saveData();
+            
+            // Mettre à jour l'affichage des étoiles
+            const stars = document.querySelectorAll(`.dynamic-item[data-id="${id}"] .star-btn`);
+            stars.forEach((star, index) => {
+                if (index < level) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+            
+            this.updatePreview();
+        }
+    }
+
+    removeLanguage(id) {
+        this.cvData.languages = this.cvData.languages.filter(lang => lang.id !== id);
+        const element = document.querySelector(`.dynamic-item[data-id="${id}"]`);
+        if (element) element.remove();
+        this.saveData();
+        this.updatePreview();
     }
 
     // ========== TEMPLATES ==========
@@ -388,7 +523,9 @@ class CVBuilderApp {
 
     // ========== APERÇU ==========
     updatePreview() {
-        this.templateLoader.renderCV(this.cvData);
+        if (this.templateLoader) {
+            this.templateLoader.renderCV(this.cvData);
+        }
     }
 
     setupPreviewControls() {
@@ -397,7 +534,7 @@ class CVBuilderApp {
         document.getElementById('zoom-out')?.addEventListener('click', () => this.adjustZoom(-0.1));
         
         // Impression
-        document.getElementById('print-btn')?.addEventListener('click', () => window.print());
+        document.getElementById('print-btn')?.addEventListener('click', () => this.printCV());
     }
 
     adjustZoom(delta) {
@@ -405,51 +542,132 @@ class CVBuilderApp {
         const preview = document.getElementById('cv-preview');
         if (preview) {
             preview.style.transform = `scale(${this.currentZoom})`;
-            preview.style.transformOrigin = 'top center';
             
             // Mettre à jour l'affichage du zoom
-            const zoomLevel = document.querySelector('.zoom-level');
-            if (zoomLevel) {
-                zoomLevel.textContent = `${Math.round(this.currentZoom * 100)}%`;
+            const zoomValue = document.querySelector('.zoom-value');
+            if (zoomValue) {
+                zoomValue.textContent = `${Math.round(this.currentZoom * 100)}%`;
             }
         }
+    }
+
+    resetZoom() {
+        this.currentZoom = 1;
+        const preview = document.getElementById('cv-preview');
+        if (preview) {
+            preview.style.transform = `scale(${this.currentZoom})`;
+            const zoomValue = document.querySelector('.zoom-value');
+            if (zoomValue) {
+                zoomValue.textContent = '100%';
+            }
+        }
+    }
+
+    printCV() {
+        const originalContent = document.body.innerHTML;
+        const printContent = document.getElementById('cv-preview').outerHTML;
+        
+        document.body.innerHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>CV - Impression</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500;600&display=swap');
+                    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+                    
+                    body { 
+                        font-family: 'Inter', sans-serif; 
+                        margin: 0; 
+                        padding: 20px; 
+                        background: #f5f7fa;
+                    }
+                    
+                    .cv-preview { 
+                        width: 210mm; 
+                        min-height: 297mm; 
+                        margin: 0 auto; 
+                        background: white; 
+                        box-shadow: none;
+                        transform: none !important;
+                    }
+                    
+                    @media print {
+                        body { margin: 0; padding: 0; }
+                        .cv-preview { 
+                            box-shadow: none; 
+                            width: 100%;
+                            min-height: 100vh;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div>${printContent}</div>
+                <script>
+                    window.onafterprint = function() {
+                        window.location.reload();
+                    };
+                    setTimeout(() => window.print(), 500);
+                </script>
+            </body>
+            </html>
+        `;
     }
 
     // ========== ACTIONS ==========
     setupActions() {
         // Téléchargement PDF
-        document.getElementById('download-btn')?.addEventListener('click', () => this.generatePDF());
-        document.getElementById('generate-pdf')?.addEventListener('click', () => this.generatePDF());
+        const downloadBtn = document.getElementById('download-btn');
+        const generatePdfBtn = document.getElementById('generate-pdf');
+        
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => this.generatePDF());
+        }
+        
+        if (generatePdfBtn) {
+            generatePdfBtn.addEventListener('click', () => this.generatePDF());
+        }
         
         // Réinitialisation
-        document.getElementById('reset-btn')?.addEventListener('click', () => this.resetData());
+        const resetBtn = document.getElementById('reset-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetData());
+        }
     }
 
-    generatePDF() {
-        this.pdfGenerator.generatePDF(this.cvData)
-            .then(() => {
-                this.showNotification('PDF généré avec succès !', 'success');
-            })
-            .catch(error => {
-                console.error('Erreur lors de la génération du PDF:', error);
-                this.showNotification('Erreur lors de la génération du PDF', 'error');
-            });
+    async generatePDF() {
+        try {
+            await this.pdfGenerator.generatePDF(this.cvData);
+            this.showNotification('PDF généré avec succès !', 'success');
+        } catch (error) {
+            console.error('Erreur PDF:', error);
+            this.showNotification('Erreur lors de la génération du PDF', 'error');
+        }
     }
 
     resetData() {
         if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ? Cette action est irréversible.')) {
             this.cvData = this.getInitialData();
-            this.nextExperienceId = 1;
-            this.nextEducationId = 1;
             
             // Réinitialiser le formulaire
-            document.getElementById('cv-form').reset();
-            document.getElementById('experience-container').innerHTML = '';
-            document.getElementById('education-container').innerHTML = '';
+            const form = document.getElementById('cv-form');
+            if (form) form.reset();
+            
+            // Vider les conteneurs dynamiques
+            const containers = ['experience-container', 'education-container', 'languages-container'];
+            containers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (container) container.innerHTML = '';
+            });
+            
+            // Vider la photo
+            const photoPreview = document.getElementById('photo-preview');
+            if (photoPreview) photoPreview.innerHTML = '';
             
             // Réinitialiser le template
-            this.templateLoader.loadTemplate('modern');
             this.cvData.template = 'modern';
+            this.templateLoader.loadTemplate('modern');
             this.updateTemplateSelection();
             
             // Effacer le stockage local
@@ -458,7 +676,7 @@ class CVBuilderApp {
             // Mettre à jour l'affichage
             this.updatePreview();
             
-            this.showNotification('Données réinitialisées avec succès', 'success');
+            this.showNotification('Toutes les données ont été réinitialisées', 'success');
         }
     }
 
@@ -469,10 +687,13 @@ class CVBuilderApp {
 
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
+        
+        const icon = type === 'success' ? 'check-circle' : 
+                    type === 'error' ? 'exclamation-circle' : 
+                    type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+        
         notification.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 
-                               type === 'error' ? 'exclamation-circle' : 
-                               type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            <i class="fas fa-${icon}"></i>
             <span>${message}</span>
         `;
         
@@ -492,56 +713,66 @@ class CVBuilderApp {
     loadExampleData() {
         this.cvData = {
             personal: {
-                fullName: 'Marie Dubois',
-                profession: 'Développeuse Full Stack',
-                email: 'marie.dubois@email.com',
+                fullName: 'Alexandre Martin',
+                profession: 'Développeur Full Stack Senior',
+                email: 'alexandre.martin@email.com',
                 phone: '+33 6 12 34 56 78',
                 location: 'Paris, France',
-                linkedin: 'linkedin.com/in/mariedubois',
-                github: 'github.com/mariedubois',
-                portfolio: 'marie-dubois.dev',
-                summary: 'Développeuse passionnée avec 5 ans d\'expérience dans la création d\'applications web modernes. Expertise en React, Node.js et architectures cloud.'
+                linkedin: 'https://linkedin.com/in/alexandremartin',
+                github: 'https://github.com/alexandremartin',
+                portfolio: 'https://alexandre-martin.dev',
+                summary: 'Développeur passionné avec 6 ans d\'expérience dans la création d\'applications web modernes. Expert en React, Node.js et architectures cloud. Passionné par l\'innovation et les technologies émergentes. Leader d\'équipe avec une solide expérience en gestion de projets Agile.',
+                photo: ''
             },
             experiences: [
                 {
                     id: 1,
-                    title: 'Développeuse Full Stack Senior',
-                    company: 'TechCorp SAS',
-                    period: '2022 - Présent',
-                    description: 'Développement d\'applications React/Node.js, gestion d\'équipe, architecture microservices.'
+                    title: 'Lead Développeur Full Stack',
+                    company: 'TechVision Solutions',
+                    period: '2021 - Présent',
+                    description: 'Direction d\'une équipe de 8 développeurs, architecture de microservices, développement d\'API REST, optimisation des performances. Mise en place de CI/CD et migration vers le cloud AWS.'
                 },
                 {
                     id: 2,
-                    title: 'Développeuse Frontend',
+                    title: 'Développeur Frontend Senior',
                     company: 'WebSolutions SARL',
-                    period: '2020 - 2022',
-                    description: 'Création d\'interfaces utilisateur avec React et TypeScript, optimisation des performances.'
+                    period: '2019 - 2021',
+                    description: 'Développement d\'applications React/TypeScript, mise en place de tests unitaires, intégration de design systems. Participation à l\'architecture technique et au recrutement.'
+                },
+                {
+                    id: 3,
+                    title: 'Développeur Web',
+                    company: 'Digital Agency',
+                    period: '2018 - 2019',
+                    description: 'Création de sites web responsive, intégration de maquettes, développement de fonctionnalités frontend et backend.'
                 }
             ],
             educations: [
                 {
                     id: 1,
                     degree: 'Master en Informatique',
-                    school: 'Université Paris-Saclay',
-                    year: '2020',
-                    description: 'Spécialisation en développement web et architectures distribuées'
+                    school: 'École Polytechnique',
+                    year: '2018',
+                    description: 'Spécialisation en intelligence artificielle et machine learning. Projet de fin d\'études sur l\'optimisation des algorithmes de recommandation.'
                 },
                 {
                     id: 2,
                     degree: 'Licence en Informatique',
-                    school: 'Université Paris Descartes',
-                    year: '2018',
-                    description: 'Fondements de la programmation et des systèmes d\'information'
+                    school: 'Université Paris-Saclay',
+                    year: '2016',
+                    description: 'Fondements de la programmation orientée objet, bases de données, algorithmique et structures de données.'
                 }
             ],
-            skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'Python', 'MongoDB', 'Docker', 'AWS'],
-            languages: ['Français (Natif)', 'Anglais (Courant)', 'Espagnol (Intermédiaire)'],
-            interests: ['Photographie', 'Randonnée', 'Lecture', 'Voyages'],
+            skills: ['JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Python', 'MongoDB', 'PostgreSQL', 'Docker', 'AWS', 'Git', 'CI/CD', 'Agile', 'Scrum'],
+            languages: [
+                { id: 1, name: 'Français', level: 5 },
+                { id: 2, name: 'Anglais', level: 4 },
+                { id: 3, name: 'Espagnol', level: 3 },
+                { id: 4, name: 'Allemand', level: 2 }
+            ],
+            interests: ['Voyages', 'Photographie', 'Randonnée', 'Musique', 'Lecture', 'Technologie', 'Cuisine', 'Jeux vidéo'],
             template: 'modern'
         };
-        
-        this.nextExperienceId = 3;
-        this.nextEducationId = 3;
         
         this.populateForm();
         this.updateTemplateSelection();
@@ -552,7 +783,7 @@ class CVBuilderApp {
     }
 }
 
-// Initialiser l'application globale
+// Initialiser l'application
 window.app = new CVBuilderApp();
 
 // Exposer les méthodes globales

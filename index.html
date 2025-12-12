@@ -5,29 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CVBuilder Pro | Créateur de CV Moderne</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css">
-    <!-- Template par défaut -->
-    <link rel="stylesheet" href="styles/templates/modern.css" id="template-css">
+    <link rel="stylesheet" href="styles/templates/moderne.css" id="template-css">
 </head>
 <body>
-    <div class="app-wrapper">
-        <!-- Header avec navigation -->
-        <header class="main-header">
-            <div class="header-container">
-                <div class="logo-area">
+    <!-- Application Container -->
+    <div class="app-container">
+        <!-- Header avec Navigation -->
+        <header class="app-header">
+            <div class="header-wrapper">
+                <!-- Logo -->
+                <div class="logo-section">
                     <div class="logo-icon">
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <div class="logo-text">
-                        <h1>CVBuilder <span class="gradient-text">Pro</span></h1>
-                        <p class="logo-subtitle">Créateur de CV intelligent</p>
+                        <h1>CVBuilder <span class="highlight">Pro</span></h1>
+                        <p class="tagline">Créateur de CV Intelligent</p>
                     </div>
                 </div>
-                
-                <nav class="main-nav">
-                    <ul class="nav-list">
-                        <li class="nav-item active" data-section="form">
+
+                <!-- Navigation -->
+                <nav class="main-navigation">
+                    <ul class="nav-menu">
+                        <li class="nav-item active" data-section="editor">
                             <i class="fas fa-edit"></i>
                             <span>Éditer</span>
                             <div class="nav-indicator"></div>
@@ -44,104 +46,115 @@
                         </li>
                     </ul>
                 </nav>
-                
+
+                <!-- Actions -->
                 <div class="header-actions">
                     <button class="btn btn-outline" id="reset-btn">
-                        <i class="fas fa-redo-alt"></i>
+                        <i class="fas fa-redo"></i>
                         <span>Réinitialiser</span>
                     </button>
                     <button class="btn btn-primary btn-glow" id="download-btn">
                         <i class="fas fa-download"></i>
-                        <span>Télécharger PDF</span>
+                        <span>PDF</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadExampleData()">
+                        <i class="fas fa-magic"></i>
+                        <span>Exemple</span>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Contenu principal -->
-        <main class="main-content">
-            <!-- Section Éditer -->
-            <section id="form-section" class="content-section active">
-                <div class="section-container">
+        <!-- Contenu Principal -->
+        <main class="app-main">
+            <!-- Section Éditeur -->
+            <section id="editor-section" class="content-section active">
+                <div class="section-wrapper">
                     <div class="section-header">
-                        <div class="header-decor">
-                            <div class="decor-circle"></div>
-                            <div class="decor-circle"></div>
-                            <div class="decor-circle"></div>
-                        </div>
-                        <h2><i class="fas fa-magic"></i>Créez votre CV</h2>
-                        <p>Remplissez les informations ci-dessous pour générer votre CV professionnel</p>
+                        <h2><i class="fas fa-magic"></i>Créez Votre CV</h2>
+                        <p class="section-subtitle">Remplissez les informations ci-dessous pour générer votre CV professionnel</p>
                     </div>
 
                     <form id="cv-form" class="cv-form">
                         <!-- Informations Personnelles -->
-                        <div class="form-section">
-                            <div class="section-title">
+                        <div class="form-card">
+                            <div class="card-header">
                                 <i class="fas fa-user-circle"></i>
                                 <h3>Informations Personnelles</h3>
                             </div>
                             <div class="form-grid">
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="text" id="fullName" required>
                                     <label for="fullName">Nom complet *</label>
-                                    <div class="form-underline"></div>
+                                    <div class="focus-line"></div>
                                 </div>
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="text" id="profession" required>
                                     <label for="profession">Poste recherché *</label>
-                                    <div class="form-underline"></div>
+                                    <div class="focus-line"></div>
                                 </div>
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="email" id="email" required>
                                     <label for="email">Email professionnel *</label>
-                                    <div class="form-underline"></div>
+                                    <div class="focus-line"></div>
                                 </div>
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="tel" id="phone">
                                     <label for="phone">Téléphone</label>
-                                    <div class="form-underline"></div>
+                                    <div class="focus-line"></div>
                                 </div>
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="text" id="location">
                                     <label for="location">Localisation</label>
-                                    <div class="form-underline"></div>
+                                    <div class="focus-line"></div>
                                 </div>
-                                <div class="form-group floating-label full-width">
+                                <div class="input-group floating">
+                                    <div class="photo-upload-container">
+                                        <input type="file" id="photo" accept="image/*" style="display: none">
+                                        <button type="button" class="btn btn-outline photo-btn" onclick="document.getElementById('photo').click()">
+                                            <i class="fas fa-camera"></i>
+                                            Ajouter une photo
+                                        </button>
+                                        <div id="photo-preview" class="photo-preview"></div>
+                                    </div>
+                                    <div class="photo-hint">Taille recommandée : 200x200px</div>
+                                </div>
+                                <div class="input-group floating full-width">
                                     <textarea id="summary" rows="3"></textarea>
                                     <label for="summary">Profil professionnel</label>
-                                    <div class="form-underline"></div>
+                                    <div class="focus-line"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Réseaux Professionnels -->
-                        <div class="form-section">
-                            <div class="section-title">
-                                <i class="fas fa-network-wired"></i>
+                        <!-- Réseaux Sociaux -->
+                        <div class="form-card">
+                            <div class="card-header">
+                                <i class="fas fa-share-alt"></i>
                                 <h3>Réseaux Professionnels</h3>
                             </div>
                             <div class="form-grid">
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="url" id="linkedin">
-                                    <label for="linkedin">LinkedIn</label>
-                                    <div class="form-underline"></div>
+                                    <label for="linkedin">LinkedIn URL</label>
+                                    <div class="focus-line"></div>
                                 </div>
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="url" id="github">
-                                    <label for="github">GitHub</label>
-                                    <div class="form-underline"></div>
+                                    <label for="github">GitHub URL</label>
+                                    <div class="focus-line"></div>
                                 </div>
-                                <div class="form-group floating-label">
+                                <div class="input-group floating">
                                     <input type="url" id="portfolio">
-                                    <label for="portfolio">Portfolio</label>
-                                    <div class="form-underline"></div>
+                                    <label for="portfolio">Portfolio URL</label>
+                                    <div class="focus-line"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Expérience Professionnelle -->
-                        <div class="form-section">
-                            <div class="section-title">
+                        <div class="form-card">
+                            <div class="card-header">
                                 <i class="fas fa-briefcase"></i>
                                 <h3>Expérience Professionnelle</h3>
                                 <button type="button" class="btn btn-add" id="add-experience">
@@ -149,14 +162,12 @@
                                     Ajouter
                                 </button>
                             </div>
-                            <div id="experience-container" class="dynamic-container">
-                                <!-- Expériences dynamiques -->
-                            </div>
+                            <div id="experience-container" class="dynamic-container"></div>
                         </div>
 
                         <!-- Formation -->
-                        <div class="form-section">
-                            <div class="section-title">
+                        <div class="form-card">
+                            <div class="card-header">
                                 <i class="fas fa-graduation-cap"></i>
                                 <h3>Formation</h3>
                                 <button type="button" class="btn btn-add" id="add-education">
@@ -164,41 +175,47 @@
                                     Ajouter
                                 </button>
                             </div>
-                            <div id="education-container" class="dynamic-container">
-                                <!-- Formations dynamiques -->
-                            </div>
+                            <div id="education-container" class="dynamic-container"></div>
                         </div>
 
                         <!-- Compétences -->
-                        <div class="form-section">
-                            <div class="section-title">
-                                <i class="fas fa-cogs"></i>
-                                <h3>Compétences</h3>
+                        <div class="form-card">
+                            <div class="card-header">
+                                <i class="fas fa-code"></i>
+                                <h3>Compétences Techniques</h3>
                             </div>
                             <div class="skills-section">
-                                <div class="form-group floating-label full-width">
+                                <div class="input-group floating full-width">
                                     <input type="text" id="skills" placeholder="JavaScript, React, Node.js...">
                                     <label for="skills">Compétences techniques (séparées par des virgules)</label>
-                                    <div class="form-underline"></div>
-                                </div>
-                                <div class="form-group floating-label full-width">
-                                    <input type="text" id="languages" placeholder="Français, Anglais, Espagnol...">
-                                    <label for="languages">Langues parlées</label>
-                                    <div class="form-underline"></div>
+                                    <div class="focus-line"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Centres d'intérêt -->
-                        <div class="form-section">
-                            <div class="section-title">
-                                <i class="fas fa-heart"></i>
-                                <h3>Centres d'intérêt</h3>
+                        <!-- Langues -->
+                        <div class="form-card">
+                            <div class="card-header">
+                                <i class="fas fa-language"></i>
+                                <h3>Langues</h3>
+                                <button type="button" class="btn btn-add" id="add-language">
+                                    <i class="fas fa-plus"></i>
+                                    Ajouter
+                                </button>
                             </div>
-                            <div class="form-group floating-label full-width">
+                            <div id="languages-container" class="dynamic-container"></div>
+                        </div>
+
+                        <!-- Centres d'Intérêt -->
+                        <div class="form-card">
+                            <div class="card-header">
+                                <i class="fas fa-heart"></i>
+                                <h3>Centres d'Intérêt</h3>
+                            </div>
+                            <div class="input-group floating full-width">
                                 <input type="text" id="interests" placeholder="Voyages, Photographie, Sport...">
                                 <label for="interests">Vos centres d'intérêt</label>
-                                <div class="form-underline"></div>
+                                <div class="focus-line"></div>
                             </div>
                         </div>
                     </form>
@@ -207,63 +224,62 @@
 
             <!-- Section Modèles -->
             <section id="templates-section" class="content-section">
-                <div class="section-container">
+                <div class="section-wrapper">
                     <div class="section-header">
-                        <h2><i class="fas fa-palette"></i>Choisissez votre style</h2>
-                        <p>Sélectionnez un modèle qui correspond à votre personnalité professionnelle</p>
+                        <h2><i class="fas fa-palette"></i>Choisissez Votre Style</h2>
+                        <p class="section-subtitle">Sélectionnez un modèle qui correspond à votre personnalité professionnelle</p>
                     </div>
 
                     <div class="templates-grid">
                         <!-- Template Moderne -->
                         <div class="template-card active" data-template="modern">
-                            <div class="template-preview">
-                                <div class="preview-header modern-bg">
-                                    <div class="preview-name">Jean Dupont</div>
+                            <div class="template-preview modern-bg">
+                                <div class="preview-header">
+                                    <div class="preview-name">Alexandre Martin</div>
                                     <div class="preview-title">Développeur Full Stack</div>
                                 </div>
                                 <div class="preview-body">
                                     <div class="preview-section">
                                         <div class="preview-line long"></div>
                                         <div class="preview-line medium"></div>
-                                    </div>
-                                    <div class="preview-section">
                                         <div class="preview-line short"></div>
-                                        <div class="preview-line long"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Moderne</h4>
                                 <p>Design épuré et contemporain</p>
-                                <div class="template-tags">
-                                    <span>Minimaliste</span>
-                                    <span>Élégant</span>
+                                <div class="template-badges">
+                                    <span class="badge">Minimaliste</span>
+                                    <span class="badge">Élégant</span>
                                 </div>
                             </div>
-                            <div class="template-select">
-                                <i class="fas fa-check"></i>
-                                Sélectionné
+                            <div class="template-selected">
+                                <i class="fas fa-check-circle"></i> Sélectionné
                             </div>
                         </div>
 
                         <!-- Template Professionnel -->
                         <div class="template-card" data-template="professional">
-                            <div class="template-preview">
-                                <div class="preview-sidebar professional-bg">
-                                    <div class="preview-avatar"></div>
-                                </div>
+                            <div class="template-preview professional-bg">
+                                <div class="preview-sidebar"></div>
                                 <div class="preview-content">
-                                    <div class="preview-line"></div>
-                                    <div class="preview-line short"></div>
-                                    <div class="preview-line medium"></div>
+                                    <div class="preview-header">
+                                        <div class="preview-line"></div>
+                                        <div class="preview-line short"></div>
+                                    </div>
+                                    <div class="preview-section">
+                                        <div class="preview-line medium"></div>
+                                        <div class="preview-line"></div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Professionnel</h4>
                                 <p>Style corporate élégant</p>
-                                <div class="template-tags">
-                                    <span>Corporate</span>
-                                    <span>Structuré</span>
+                                <div class="template-badges">
+                                    <span class="badge">Corporate</span>
+                                    <span class="badge">Structuré</span>
                                 </div>
                             </div>
                         </div>
@@ -271,21 +287,19 @@
                         <!-- Template Créatif -->
                         <div class="template-card" data-template="creative">
                             <div class="template-preview creative-bg">
-                                <div class="preview-header">
-                                    <div class="preview-accent"></div>
-                                </div>
-                                <div class="preview-body">
-                                    <div class="preview-line creative-line"></div>
-                                    <div class="preview-line creative-line short"></div>
-                                    <div class="preview-line creative-line"></div>
+                                <div class="creative-accent"></div>
+                                <div class="preview-content">
+                                    <div class="preview-circle"></div>
+                                    <div class="preview-circle small"></div>
+                                    <div class="preview-line creative"></div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Créatif</h4>
                                 <p>Design original et expressif</p>
-                                <div class="template-tags">
-                                    <span>Coloré</span>
-                                    <span>Innovant</span>
+                                <div class="template-badges">
+                                    <span class="badge">Coloré</span>
+                                    <span class="badge">Innovant</span>
                                 </div>
                             </div>
                         </div>
@@ -293,27 +307,26 @@
                         <!-- Template Executive -->
                         <div class="template-card" data-template="executive">
                             <div class="template-preview executive-bg">
-                                <div class="preview-header executive-header">
-                                    <div class="preview-line"></div>
-                                    <div class="preview-line short"></div>
+                                <div class="executive-header">
+                                    <div class="preview-line executive"></div>
+                                    <div class="preview-line executive short"></div>
                                 </div>
-                                <div class="preview-body">
-                                    <div class="preview-columns">
-                                        <div class="preview-column">
-                                            <div class="preview-line"></div>
-                                        </div>
-                                        <div class="preview-column">
-                                            <div class="preview-line short"></div>
-                                        </div>
+                                <div class="preview-content">
+                                    <div class="preview-column">
+                                        <div class="preview-line"></div>
+                                        <div class="preview-line short"></div>
+                                    </div>
+                                    <div class="preview-column">
+                                        <div class="preview-line medium"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Executive</h4>
                                 <p>Luxe et sophistication</p>
-                                <div class="template-tags">
-                                    <span>Premium</span>
-                                    <span>Élégant</span>
+                                <div class="template-badges">
+                                    <span class="badge">Premium</span>
+                                    <span class="badge">Élégant</span>
                                 </div>
                             </div>
                         </div>
@@ -323,39 +336,41 @@
 
             <!-- Section Aperçu -->
             <section id="preview-section" class="content-section">
-                <div class="section-container">
+                <div class="section-wrapper">
                     <div class="preview-header">
-                        <div class="preview-title">
-                            <h2><i class="fas fa-eye"></i>Aperçu en direct</h2>
+                        <div class="header-left">
+                            <h2 style="color: #000;"><i class="fas fa-eye"></i>Aperçu en Direct</h2>
                             <p>Votre CV se met à jour automatiquement</p>
                         </div>
-                        <div class="preview-controls">
-                            <div class="zoom-controls">
-                                <button class="btn-icon" id="zoom-out" title="Zoom -">
-                                    <i class="fas fa-search-minus"></i>
-                                </button>
-                                <span class="zoom-level">100%</span>
-                                <button class="btn-icon" id="zoom-in" title="Zoom +">
-                                    <i class="fas fa-search-plus"></i>
-                                </button>
-                            </div>
-                            <div class="preview-actions">
-                                <button class="btn btn-secondary" id="print-btn">
-                                    <i class="fas fa-print"></i>
-                                    Imprimer
-                                </button>
-                                <button class="btn btn-primary btn-glow" id="generate-pdf">
-                                    <i class="fas fa-file-pdf"></i>
-                                    Générer PDF
-                                </button>
+                        <div class="header-right">
+                            <div class="preview-tools">
+                                <div class="zoom-control">
+                                    <button class="btn-icon" id="zoom-out" title="Zoom -">
+                                        <i class="fas fa-search-minus"></i>
+                                    </button>
+                                    <span class="zoom-value">100%</span>
+                                    <button class="btn-icon" id="zoom-in" title="Zoom +">
+                                        <i class="fas fa-search-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-secondary" id="print-btn">
+                                        <i class="fas fa-print"></i>
+                                        Imprimer
+                                    </button>
+                                    <button class="btn btn-primary" id="generate-pdf">
+                                        <i class="fas fa-file-pdf"></i>
+                                        Générer PDF
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="preview-wrapper">
-                        <div class="preview-container" id="preview-container">
-                            <div class="preview-paper" id="cv-preview">
-                                <!-- CV généré ici -->
+                    <div class="preview-container">
+                        <div class="preview-wrapper" id="preview-wrapper">
+                            <div class="cv-preview" id="cv-preview">
+                                <!-- Le CV sera généré ici -->
                             </div>
                         </div>
                     </div>
@@ -364,9 +379,9 @@
         </main>
 
         <!-- Footer -->
-        <footer class="main-footer">
+        <footer class="app-footer">
             <div class="footer-content">
-                <p>CVBuilder Pro © 2024 - Créateur de CV professionnel</p>
+                <p>CVBuilder Pro © 2024 - Créateur de CV Professionnel</p>
                 <div class="footer-links">
                     <a href="#"><i class="fas fa-question-circle"></i> Aide</a>
                     <a href="#"><i class="fas fa-shield-alt"></i> Confidentialité</a>
@@ -375,36 +390,27 @@
             </div>
         </footer>
 
+        <!-- Overlay de Chargement -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                </div>
+                <p>Génération du PDF en cours...</p>
+            </div>
+        </div>
+
         <!-- Notifications -->
         <div id="notification-container" class="notification-container"></div>
-
-        <!-- Overlay de chargement -->
-        <div id="loading-overlay" class="loading-overlay">
-            <div class="loading-spinner">
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-                <div class="spinner-center"></div>
-            </div>
-            <p class="loading-text">Génération du PDF en cours...</p>
-        </div>
-
-        <!-- Modal de confirmation -->
-        <div id="confirm-modal" class="modal">
-            <div class="modal-content">
-                <h3>Confirmation</h3>
-                <p id="modal-message"></p>
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" id="modal-cancel">Annuler</button>
-                    <button class="btn btn-primary" id="modal-confirm">Confirmer</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="scripts/templateLoader.js"></script>
-    <script src="scripts/pdfGenerator.js"></script>
+    <script src="scripts/pdf-generator.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>
