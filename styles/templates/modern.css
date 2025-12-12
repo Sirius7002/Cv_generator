@@ -1,0 +1,536 @@
+/* ============================================
+   TEMPLATE MODERNE - CVBuilder Pro
+   Design épuré et contemporain
+============================================ */
+.cv-modern {
+    width: 210mm;
+    min-height: 297mm;
+    background: #ffffff;
+    color: #1e293b;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* En-tête */
+.cv-modern .cv-header {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    padding: 3rem 3.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cv-modern .cv-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    transform: translate(40%, -40%);
+}
+
+.cv-modern .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.cv-modern .header-left {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.cv-modern .cv-photo {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.cv-modern .cv-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cv-modern .photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 4rem;
+}
+
+.cv-modern .header-text {
+    flex: 1;
+}
+
+.cv-modern .cv-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.cv-modern .cv-profession {
+    font-size: 1.4rem;
+    font-weight: 400;
+    opacity: 0.9;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+}
+
+.cv-modern .contact-info {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    min-width: 320px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cv-modern .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.cv-modern .contact-item:last-child {
+    margin-bottom: 0;
+}
+
+.cv-modern .contact-item i {
+    width: 20px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+}
+
+/* Contenu principal */
+.cv-modern .cv-content {
+    padding: 3rem 3.5rem;
+}
+
+/* Sections */
+.cv-modern .cv-section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #e2e8f0;
+    position: relative;
+}
+
+.cv-modern .cv-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.cv-modern .section-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4361ee;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.cv-modern .section-title i {
+    background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+/* Profil */
+.cv-modern .profile-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #475569;
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #4361ee;
+}
+
+/* Expériences & Formations */
+.cv-modern .experience-item,
+.cv-modern .education-item {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cv-modern .experience-item::before,
+.cv-modern .education-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #4361ee, #3a0ca3);
+    border-radius: 2px;
+}
+
+.cv-modern .experience-item:hover,
+.cv-modern .education-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(67, 97, 238, 0.1);
+    border-color: #c7d2fe;
+}
+
+.cv-modern .experience-header,
+.cv-modern .education-header {
+    margin-bottom: 1rem;
+}
+
+.cv-modern .experience-title,
+.cv-modern .education-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.cv-modern .experience-subtitle,
+.cv-modern .education-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 1rem;
+    color: #64748b;
+}
+
+.cv-modern .company,
+.cv-modern .school {
+    font-weight: 500;
+    color: #4361ee;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cv-modern .company::before,
+.cv-modern .school::before {
+    content: '🏢';
+    font-size: 0.9rem;
+}
+
+.cv-modern .period,
+.cv-modern .year {
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cv-modern .period::before,
+.cv-modern .year::before {
+    content: '📅';
+    font-size: 0.9rem;
+}
+
+.cv-modern .experience-description,
+.cv-modern .education-description {
+    color: #475569;
+    line-height: 1.7;
+    font-size: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid #e2e8f0;
+    margin-left: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Compétences */
+.cv-modern .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.cv-modern .skill-tag {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    color: #0369a1;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 1px solid #bae6fd;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.cv-modern .skill-tag::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(58, 12, 163, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.cv-modern .skill-tag:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(67, 97, 238, 0.15);
+    border-color: #93c5fd;
+}
+
+.cv-modern .skill-tag:hover::before {
+    opacity: 1;
+}
+
+/* Langues */
+.cv-modern .language-item {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.cv-modern .language-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.cv-modern .language-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cv-modern .language-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cv-modern .language-name::before {
+    content: '🌐';
+    font-size: 1rem;
+}
+
+.cv-modern .language-level {
+    color: #64748b;
+    font-size: 0.9rem;
+    background: #f1f5f9;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.cv-modern .language-bar {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cv-modern .language-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4361ee, #3a0ca3);
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+}
+
+/* Intérêts */
+.cv-modern .interests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.5rem;
+}
+
+.cv-modern .interest-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.cv-modern .interest-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(67, 97, 238, 0.1);
+    border-color: #c7d2fe;
+}
+
+.cv-modern .interest-item i {
+    font-size: 2rem;
+    color: #4361ee;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cv-modern .interest-item span {
+    font-weight: 500;
+    color: #475569;
+    font-size: 1rem;
+}
+
+/* Footer */
+.cv-modern .cv-footer {
+    padding: 2rem 3.5rem;
+    background: #f8fafc;
+    border-top: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cv-modern .social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.cv-modern .social-link {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.cv-modern .social-link:hover {
+    background: #4361ee;
+    color: white;
+    border-color: #4361ee;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+}
+
+.cv-modern .footer-info {
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* Animation d'entrée */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cv-modern .cv-section {
+    animation: fadeInSlideUp 0.6s ease-out;
+}
+
+.cv-modern .cv-section:nth-child(2) { animation-delay: 0.1s; }
+.cv-modern .cv-section:nth-child(3) { animation-delay: 0.2s; }
+.cv-modern .cv-section:nth-child(4) { animation-delay: 0.3s; }
+.cv-modern .cv-section:nth-child(5) { animation-delay: 0.4s; }
+.cv-modern .cv-section:nth-child(6) { animation-delay: 0.5s; }
+
+/* Mode impression */
+@media print {
+    .cv-modern {
+        width: 210mm;
+        height: 297mm;
+        box-shadow: none;
+        margin: 0;
+        background: white !important;
+    }
+    
+    .cv-modern .cv-header {
+        background: #4361ee !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .cv-modern .cv-footer {
+        display: none;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cv-modern .header-content {
+        flex-direction: column;
+        gap: 2.5rem;
+        text-align: center;
+    }
+    
+    .cv-modern .header-left {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .cv-modern .contact-info {
+        min-width: 100%;
+    }
+    
+    .cv-modern .interests-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .cv-modern .cv-content {
+        padding: 2rem;
+    }
+    
+    .cv-modern .cv-footer {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+}
