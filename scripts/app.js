@@ -1,617 +1,559 @@
-// Données du CV
-let cvData = {
-    personal: {
-        fullName: '',
-        profession: '',
-        email: '',
-        phone: '',
-        location: '',
-        linkedin: '',
-        github: '',
-        portfolio: '',
-        summary: ''
-    },
-    experiences: [],
-    educations: [],
-    skills: [],
-    languages: [],
-    interests: [],
-    template: 'modern'
-};
+/**
+ * CVBuilder Pro - Application Principale
+ * Gestion des données, événements et coordination des modules
+ */
 
-// Navigation entre les sections
-function setupNavigation() {
-    console.log('🔧 Configuration de la navigation...');
-    
-    const sections = {
-        form: document.getElementById('form-section'),
-        templates: document.getElementById('templates-section'),
-        preview: document.getElementById('preview-section')
-    };
+class CVBuilderApp {
+    constructor() {
+        this.cvData = this.getInitialData();
+        this.currentZoom = 1;
+        this.currentSection = 'form';
+        this.nextExperienceId = 1;
+        this.nextEducationId = 1;
+        
+        this.templateLoader = new TemplateLoader();
+        this.pdfGenerator = new PDFGenerator();
+        
+        this.init();
+    }
 
-    const navButtons = document.querySelectorAll('.nav-btn');
+    // ========== INITIALISATION ==========
+    init() {
+        console.log('🚀 CVBuilder Pro - Initialisation');
+        
+        // Charger les données sauvegardées
+        this.loadData();
+        
+        // Configurer les écouteurs d'événements
+        this.setupNavigation();
+        this.setupForm();
+        this.setupTemplates();
+        this.setupActions();
+        this.setupPreviewControls();
+        
+        // Initialiser l'affichage
+        this.updateNavigation();
+        this.updatePreview();
+        
+        console.log('✅ Application prête !');
+    }
 
-    // Cacher toutes les sections sauf la première
-    Object.values(sections).forEach(section => {
-        if (section) section.classList.remove('active');
-    });
-    if (sections.form) sections.form.classList.add('active');
+    getInitialData() {
+        return {
+            personal: {
+                fullName: '',
+                profession: '',
+                email: '',
+                phone: '',
+                location: '',
+                linkedin: '',
+                github: '',
+                portfolio: '',
+                summary: ''
+            },
+            experiences: [],
+            educations: [],
+            skills: [],
+            languages: [],
+            interests: [],
+            template: 'modern'
+        };
+    }
 
-    // Configurer les écouteurs de clic
-    navButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetSection = this.dataset.section;
-            console.log('Clic sur:', targetSection);
-
-            // Mettre à jour les boutons actifs
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-
-            // Cacher toutes les sections
-            Object.values(sections).forEach(section => {
-                if (section) section.classList.remove('active');
-            });
-
-            // Afficher la section cible
-            if (sections[targetSection]) {
-                sections[targetSection].classList.add('active');
-                console.log('✅ Section affichée:', targetSection);
+    // ========== GESTION DES DONNÉES ==========
+    loadData() {
+        const saved = localStorage.getItem('cvData');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                this.cvData = { ...this.getInitialData(), ...data };
                 
-                // Si on va sur l'aperçu, mettre à jour
-                if (targetSection === 'preview') {
-                    updatePreview();
-                }
+                // S'assurer que les IDs sont uniques
+                this.nextExperienceId = Math.max(...this.cvData.experiences.map(e => e.id || 0), 0) + 1;
+                this.nextEducationId = Math.max(...this.cvData.educations.map(e => e.id || 0), 0) + 1;
+                
+                this.populateForm();
+                this.updateTemplateSelection();
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                this.showNotification('Erreur lors du chargement des données sauvegardées', 'error');
+            }
+        }
+    }
+
+    saveData() {
+        try {
+            localStorage.setItem('cvData', JSON.stringify(this.cvData));
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde:', error);
+        }
+    }
+
+    // ========== FORMULAIRE ==========
+    setupForm() {
+        // Champs personnels
+        const fields = ['fullName', 'profession', 'email', 'phone', 'location', 
+                       'linkedin', 'github', 'portfolio', 'summary'];
+        
+        fields.forEach(field => {
+            const element = document.getElementById(field);
+            if (element) {
+                element.addEventListener('input', (e) => {
+                    this.cvData.personal[field] = e.target.value;
+                    this.saveData();
+                    this.updatePreview();
+                });
             }
         });
-    });
-}
 
-// Configuration des templates
-function setupTemplates() {
-    const templateCards = document.querySelectorAll('.template-card');
-    
-    templateCards.forEach(card => {
-        card.addEventListener('click', function() {
-            // Retirer la classe active de toutes les cartes
-            templateCards.forEach(c => c.classList.remove('active'));
-            // Ajouter la classe active à la carte cliquée
-            this.classList.add('active');
-            
-            // Mettre à jour le template
-            cvData.template = this.dataset.template;
-            updatePreview();
-            saveData();
-            
-            showToast(`Template "${this.dataset.template}" sélectionné !`);
-        });
-    });
-}
-
-// Configuration du formulaire
-function setupForm() {
-    // Champs d'informations personnelles
-    const personalFields = ['fullName', 'profession', 'email', 'phone', 'location', 'linkedin', 'github', 'portfolio', 'summary'];
-    personalFields.forEach(field => {
-        const element = document.getElementById(field);
-        if (element) {
-            element.addEventListener('input', function() {
-                cvData.personal[field] = this.value;
-                updatePreview();
-                saveData();
-            });
-        }
-    });
-
-    // Champs de compétences
-    const listFields = ['skills', 'languages', 'interests'];
-    listFields.forEach(field => {
-        const element = document.getElementById(field);
-        if (element) {
-            element.addEventListener('input', function() {
-                cvData[field] = this.value.split(',').map(item => item.trim()).filter(item => item);
-                updatePreview();
-                saveData();
-            });
-        }
-    });
-
-    // Boutons d'ajout
-    document.getElementById('add-experience').addEventListener('click', addExperience);
-    document.getElementById('add-education').addEventListener('click', addEducation);
-}
-
-// Gestion des expériences
-function addExperience() {
-    const container = document.getElementById('experience-container');
-    const experienceId = Date.now();
-    
-    const experienceHTML = `
-        <div class="dynamic-item" data-id="${experienceId}">
-            <input type="text" placeholder="Poste (ex: Développeur Frontend)" 
-                   oninput="updateExperienceField(${experienceId}, 'title', this.value)">
-            <input type="text" placeholder="Entreprise (ex: Google)" 
-                   oninput="updateExperienceField(${experienceId}, 'company', this.value)">
-            <input type="text" placeholder="Période (ex: 2020-2022)" 
-                   oninput="updateExperienceField(${experienceId}, 'period', this.value)">
-            <textarea placeholder="Description et réalisations..." 
-                     oninput="updateExperienceField(${experienceId}, 'description', this.value)"></textarea>
-            <button onclick="removeExperience(${experienceId})">Supprimer cette expérience</button>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', experienceHTML);
-}
-
-// Gestion des formations
-function addEducation() {
-    const container = document.getElementById('education-container');
-    const educationId = Date.now();
-    
-    const educationHTML = `
-        <div class="dynamic-item" data-id="${educationId}">
-            <input type="text" placeholder="Diplôme (ex: Master en Informatique)" 
-                   oninput="updateEducationField(${educationId}, 'degree', this.value)">
-            <input type="text" placeholder="Établissement (ex: Université Paris-Saclay)" 
-                   oninput="updateEducationField(${educationId}, 'school', this.value)">
-            <input type="text" placeholder="Année (ex: 2022)" 
-                   oninput="updateEducationField(${educationId}, 'year', this.value)">
-            <textarea placeholder="Description complémentaire..." 
-                     oninput="updateEducationField(${educationId}, 'description', this.value)"></textarea>
-            <button onclick="removeEducation(${educationId})">Supprimer cette formation</button>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', educationHTML);
-}
-
-// Fonctions globales pour les expériences
-window.updateExperienceField = function(id, field, value) {
-    let experience = cvData.experiences.find(exp => exp.id === id);
-    if (!experience) {
-        experience = { id: id };
-        cvData.experiences.push(experience);
-    }
-    experience[field] = value;
-    updatePreview();
-    saveData();
-};
-
-window.removeExperience = function(id) {
-    cvData.experiences = cvData.experiences.filter(exp => exp.id !== id);
-    const element = document.querySelector(`.dynamic-item[data-id="${id}"]`);
-    if (element) element.remove();
-    updatePreview();
-    saveData();
-};
-
-// Fonctions globales pour les formations
-window.updateEducationField = function(id, field, value) {
-    let education = cvData.educations.find(edu => edu.id === id);
-    if (!education) {
-        education = { id: id };
-        cvData.educations.push(education);
-    }
-    education[field] = value;
-    updatePreview();
-    saveData();
-};
-
-window.removeEducation = function(id) {
-    cvData.educations = cvData.educations.filter(edu => edu.id !== id);
-    const element = document.querySelector(`.dynamic-item[data-id="${id}"]`);
-    if (element) element.remove();
-    updatePreview();
-    saveData();
-};
-
-// Mise à jour de l'aperçu
-function updatePreview() {
-    const preview = document.getElementById('pdf-content');
-    if (!preview) return;
-
-    const template = cvData.template || 'modern';
-    
-    preview.className = `cv-template ${template}`;
-    preview.innerHTML = `
-        <!-- En-tête -->
-        <div class="cv-header">
-            <h1 class="cv-name">${cvData.personal.fullName || 'Votre Nom'}</h1>
-            <div class="cv-profession">${cvData.personal.profession || 'Poste recherché'}</div>
-            <div class="cv-contact">
-                ${cvData.personal.email ? `<span>📧 ${cvData.personal.email}</span>` : ''}
-                ${cvData.personal.phone ? `<span>📱 ${cvData.personal.phone}</span>` : ''}
-                ${cvData.personal.location ? `<span>📍 ${cvData.personal.location}</span>` : ''}
-                ${cvData.personal.linkedin ? `<span>💼 ${cvData.personal.linkedin}</span>` : ''}
-            </div>
-        </div>
-
-        <!-- Profil -->
-        ${cvData.personal.summary ? `
-        <div class="cv-section">
-            <h2><i class="fas fa-user"></i>Profil</h2>
-            <p>${cvData.personal.summary}</p>
-        </div>
-        ` : ''}
-
-        <!-- Expériences -->
-        ${cvData.experiences.length > 0 ? `
-        <div class="cv-section">
-            <h2><i class="fas fa-briefcase"></i>Expérience Professionnelle</h2>
-            ${cvData.experiences.map(exp => `
-                <div class="cv-item">
-                    <h3>${exp.title || 'Poste'}</h3>
-                    <div class="company">${exp.company || 'Entreprise'}</div>
-                    <div class="date">${exp.period || 'Période'}</div>
-                    <div class="description">${exp.description || ''}</div>
-                </div>
-            `).join('')}
-        </div>
-        ` : ''}
-
-        <!-- Formations -->
-        ${cvData.educations.length > 0 ? `
-        <div class="cv-section">
-            <h2><i class="fas fa-graduation-cap"></i>Formation</h2>
-            ${cvData.educations.map(edu => `
-                <div class="cv-item">
-                    <h3>${edu.degree || 'Diplôme'}</h3>
-                    <div class="company">${edu.school || 'Établissement'}</div>
-                    <div class="date">${edu.year || 'Année'}</div>
-                    <div class="description">${edu.description || ''}</div>
-                </div>
-            `).join('')}
-        </div>
-        ` : ''}
-
-        <!-- Compétences -->
-        ${cvData.skills.length > 0 ? `
-        <div class="cv-section">
-            <h2><i class="fas fa-code"></i>Compétences</h2>
-            <div class="skills-container">
-                ${cvData.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
-            </div>
-        </div>
-        ` : ''}
-
-        <!-- Langues -->
-        ${cvData.languages.length > 0 ? `
-        <div class="cv-section">
-            <h2><i class="fas fa-language"></i>Langues</h2>
-            <div class="skills-container">
-                ${cvData.languages.map(lang => `<span class="skill-tag">${lang}</span>`).join('')}
-            </div>
-        </div>
-        ` : ''}
-
-        <!-- Centres d'intérêt -->
-        ${cvData.interests.length > 0 ? `
-        <div class="cv-section">
-            <h2><i class="fas fa-heart"></i>Centres d'Intérêt</h2>
-            <div class="skills-container">
-                ${cvData.interests.map(interest => `<span class="skill-tag">${interest}</span>`).join('')}
-            </div>
-        </div>
-        ` : ''}
-    `;
-}
-
-// Sauvegarde et chargement
-function saveData() {
-    localStorage.setItem('cvData', JSON.stringify(cvData));
-}
-
-function loadData() {
-    const saved = localStorage.getItem('cvData');
-    if (saved) {
-        cvData = JSON.parse(saved);
-        populateForm();
-    }
-}
-
-function populateForm() {
-    // Remplir les champs personnels
-    Object.keys(cvData.personal).forEach(field => {
-        const element = document.getElementById(field);
-        if (element) {
-            element.value = cvData.personal[field] || '';
-        }
-    });
-
-    // Remplir les listes
-    document.getElementById('skills').value = cvData.skills.join(', ');
-    document.getElementById('languages').value = cvData.languages.join(', ');
-    document.getElementById('interests').value = cvData.interests.join(', ');
-
-    // Mettre à jour le template sélectionné
-    const templateCard = document.querySelector(`[data-template="${cvData.template}"]`);
-    if (templateCard) {
-        document.querySelectorAll('.template-card').forEach(card => card.classList.remove('active'));
-        templateCard.classList.add('active');
-    }
-}
-
-// Téléchargement PDF - SOLUTION CORRIGÉE
-function setupDownload() {
-    document.getElementById('download-btn').addEventListener('click', generatePDF);
-}
-
-function generatePDF() {
-    const element = document.getElementById('pdf-content');
-    if (!element) {
-        showToast('Erreur: Contenu du CV non trouvé');
-        return;
-    }
-
-    // Afficher le loading
-    const loading = document.getElementById('pdf-loading');
-    loading.classList.add('show');
-
-    // Options optimisées pour html2pdf
-    const options = {
-        margin: [10, 10, 10, 10],
-        filename: `CV_${cvData.personal.fullName || 'Mon_CV'}.pdf`,
-        image: { 
-            type: 'jpeg', 
-            quality: 1 
-        },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            width: element.scrollWidth,
-            height: element.scrollHeight,
-            onclone: function(clonedDoc) {
-                // S'assurer que le contenu est bien visible dans le clone
-                const clonedElement = clonedDoc.getElementById('pdf-content');
-                if (clonedElement) {
-                    clonedElement.style.width = '100%';
-                    clonedElement.style.background = 'white';
-                    clonedElement.style.color = 'black';
-                }
+        // Compétences, langues et centres d'intérêt
+        ['skills', 'languages', 'interests'].forEach(field => {
+            const element = document.getElementById(field);
+            if (element) {
+                element.addEventListener('input', (e) => {
+                    this.cvData[field] = e.target.value
+                        .split(',')
+                        .map(item => item.trim())
+                        .filter(item => item);
+                    this.saveData();
+                    this.updatePreview();
+                });
             }
-        },
-        jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait'
-        }
-    };
+        });
 
-    // Forcer un délai pour s'assurer que le DOM est prêt
-    setTimeout(() => {
-        html2pdf()
-            .set(options)
-            .from(element)
-            .save()
+        // Boutons d'ajout dynamiques
+        document.getElementById('add-experience')?.addEventListener('click', () => this.addExperience());
+        document.getElementById('add-education')?.addEventListener('click', () => this.addEducation());
+    }
+
+    populateForm() {
+        // Remplir les champs personnels
+        Object.keys(this.cvData.personal).forEach(field => {
+            const element = document.getElementById(field);
+            if (element) {
+                element.value = this.cvData.personal[field] || '';
+            }
+        });
+
+        // Remplir les listes
+        document.getElementById('skills').value = this.cvData.skills.join(', ');
+        document.getElementById('languages').value = this.cvData.languages.join(', ');
+        document.getElementById('interests').value = this.cvData.interests.join(', ');
+
+        // Remplir les expériences
+        this.cvData.experiences.forEach(exp => this.renderExperience(exp));
+
+        // Remplir les formations
+        this.cvData.educations.forEach(edu => this.renderEducation(edu));
+    }
+
+    // ========== EXPÉRIENCES ==========
+    addExperience() {
+        const experience = {
+            id: this.nextExperienceId++,
+            title: '',
+            company: '',
+            period: '',
+            description: ''
+        };
+        
+        this.cvData.experiences.push(experience);
+        this.saveData();
+        this.renderExperience(experience);
+        this.updatePreview();
+    }
+
+    renderExperience(experience) {
+        const container = document.getElementById('experience-container');
+        if (!container) return;
+
+        const html = `
+            <div class="dynamic-item" data-id="${experience.id}">
+                <div class="form-grid">
+                    <div class="form-group floating-label">
+                        <input type="text" 
+                               value="${experience.title}"
+                               oninput="app.updateExperience(${experience.id}, 'title', this.value)"
+                               placeholder="Développeur Full Stack">
+                        <label>Poste</label>
+                        <div class="form-underline"></div>
+                    </div>
+                    <div class="form-group floating-label">
+                        <input type="text" 
+                               value="${experience.company}"
+                               oninput="app.updateExperience(${experience.id}, 'company', this.value)"
+                               placeholder="Nom de l'entreprise">
+                        <label>Entreprise</label>
+                        <div class="form-underline"></div>
+                    </div>
+                    <div class="form-group floating-label">
+                        <input type="text" 
+                               value="${experience.period}"
+                               oninput="app.updateExperience(${experience.id}, 'period', this.value)"
+                               placeholder="2020 - 2023">
+                        <label>Période</label>
+                        <div class="form-underline"></div>
+                    </div>
+                    <div class="form-group floating-label full-width">
+                        <textarea 
+                            oninput="app.updateExperience(${experience.id}, 'description', this.value)"
+                            placeholder="Description des responsabilités..."
+                            rows="2">${experience.description}</textarea>
+                        <label>Description</label>
+                        <div class="form-underline"></div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" onclick="app.removeExperience(${experience.id})">
+                    <i class="fas fa-trash"></i>
+                    Supprimer cette expérience
+                </button>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    updateExperience(id, field, value) {
+        const experience = this.cvData.experiences.find(exp => exp.id === id);
+        if (experience) {
+            experience[field] = value;
+            this.saveData();
+            this.updatePreview();
+        }
+    }
+
+    removeExperience(id) {
+        this.cvData.experiences = this.cvData.experiences.filter(exp => exp.id !== id);
+        const element = document.querySelector(`.dynamic-item[data-id="${id}"]`);
+        if (element) element.remove();
+        this.saveData();
+        this.updatePreview();
+    }
+
+    // ========== FORMATIONS ==========
+    addEducation() {
+        const education = {
+            id: this.nextEducationId++,
+            degree: '',
+            school: '',
+            year: '',
+            description: ''
+        };
+        
+        this.cvData.educations.push(education);
+        this.saveData();
+        this.renderEducation(education);
+        this.updatePreview();
+    }
+
+    renderEducation(education) {
+        const container = document.getElementById('education-container');
+        if (!container) return;
+
+        const html = `
+            <div class="dynamic-item" data-id="${education.id}">
+                <div class="form-grid">
+                    <div class="form-group floating-label">
+                        <input type="text" 
+                               value="${education.degree}"
+                               oninput="app.updateEducation(${education.id}, 'degree', this.value)"
+                               placeholder="Master en Informatique">
+                        <label>Diplôme</label>
+                        <div class="form-underline"></div>
+                    </div>
+                    <div class="form-group floating-label">
+                        <input type="text" 
+                               value="${education.school}"
+                               oninput="app.updateEducation(${education.id}, 'school', this.value)"
+                               placeholder="Université Paris-Saclay">
+                        <label>Établissement</label>
+                        <div class="form-underline"></div>
+                    </div>
+                    <div class="form-group floating-label">
+                        <input type="text" 
+                               value="${education.year}"
+                               oninput="app.updateEducation(${education.id}, 'year', this.value)"
+                               placeholder="2022">
+                        <label>Année</label>
+                        <div class="form-underline"></div>
+                    </div>
+                    <div class="form-group floating-label full-width">
+                        <textarea 
+                            oninput="app.updateEducation(${education.id}, 'description', this.value)"
+                            placeholder="Description complémentaire..."
+                            rows="2">${education.description}</textarea>
+                        <label>Description</label>
+                        <div class="form-underline"></div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" onclick="app.removeEducation(${education.id})">
+                    <i class="fas fa-trash"></i>
+                    Supprimer cette formation
+                </button>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', html);
+    }
+
+    updateEducation(id, field, value) {
+        const education = this.cvData.educations.find(edu => edu.id === id);
+        if (education) {
+            education[field] = value;
+            this.saveData();
+            this.updatePreview();
+        }
+    }
+
+    removeEducation(id) {
+        this.cvData.educations = this.cvData.educations.filter(edu => edu.id !== id);
+        const element = document.querySelector(`.dynamic-item[data-id="${id}"]`);
+        if (element) element.remove();
+        this.saveData();
+        this.updatePreview();
+    }
+
+    // ========== NAVIGATION ==========
+    setupNavigation() {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const section = item.dataset.section;
+                this.switchSection(section);
+            });
+        });
+    }
+
+    switchSection(sectionId) {
+        this.currentSection = sectionId;
+        
+        // Mettre à jour la navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === sectionId) {
+                item.classList.add('active');
+            }
+        });
+
+        // Mettre à jour les sections
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+            if (section.id === `${sectionId}-section`) {
+                section.classList.add('active');
+            }
+        });
+
+        // Mettre à jour l'aperçu si nécessaire
+        if (sectionId === 'preview') {
+            this.updatePreview();
+        }
+    }
+
+    updateNavigation() {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === this.currentSection) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    // ========== TEMPLATES ==========
+    setupTemplates() {
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const template = card.dataset.template;
+                this.selectTemplate(template);
+            });
+        });
+    }
+
+    selectTemplate(template) {
+        this.cvData.template = template;
+        this.templateLoader.loadTemplate(template);
+        this.updateTemplateSelection();
+        this.saveData();
+        this.updatePreview();
+        
+        this.showNotification(`Template "${template}" sélectionné`, 'success');
+    }
+
+    updateTemplateSelection() {
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.classList.remove('active');
+            if (card.dataset.template === this.cvData.template) {
+                card.classList.add('active');
+            }
+        });
+    }
+
+    // ========== APERÇU ==========
+    updatePreview() {
+        this.templateLoader.renderCV(this.cvData);
+    }
+
+    setupPreviewControls() {
+        // Zoom
+        document.getElementById('zoom-in')?.addEventListener('click', () => this.adjustZoom(0.1));
+        document.getElementById('zoom-out')?.addEventListener('click', () => this.adjustZoom(-0.1));
+        
+        // Impression
+        document.getElementById('print-btn')?.addEventListener('click', () => window.print());
+    }
+
+    adjustZoom(delta) {
+        this.currentZoom = Math.max(0.5, Math.min(2, this.currentZoom + delta));
+        const preview = document.getElementById('cv-preview');
+        if (preview) {
+            preview.style.transform = `scale(${this.currentZoom})`;
+            preview.style.transformOrigin = 'top center';
+            
+            // Mettre à jour l'affichage du zoom
+            const zoomLevel = document.querySelector('.zoom-level');
+            if (zoomLevel) {
+                zoomLevel.textContent = `${Math.round(this.currentZoom * 100)}%`;
+            }
+        }
+    }
+
+    // ========== ACTIONS ==========
+    setupActions() {
+        // Téléchargement PDF
+        document.getElementById('download-btn')?.addEventListener('click', () => this.generatePDF());
+        document.getElementById('generate-pdf')?.addEventListener('click', () => this.generatePDF());
+        
+        // Réinitialisation
+        document.getElementById('reset-btn')?.addEventListener('click', () => this.resetData());
+    }
+
+    generatePDF() {
+        this.pdfGenerator.generatePDF(this.cvData)
             .then(() => {
-                loading.classList.remove('show');
-                showToast('CV téléchargé avec succès !');
+                this.showNotification('PDF généré avec succès !', 'success');
             })
             .catch(error => {
-                console.error('Erreur PDF:', error);
-                loading.classList.remove('show');
-                showToast('Erreur lors du téléchargement');
-                
-                // Solution de secours
-                setTimeout(() => {
-                    if (confirm('Le téléchargement a échoué. Voulez-vous essayer la méthode alternative ?')) {
-                        downloadAlternativePDF();
-                    }
-                }, 500);
+                console.error('Erreur lors de la génération du PDF:', error);
+                this.showNotification('Erreur lors de la génération du PDF', 'error');
             });
-    }, 500);
-}
+    }
 
-// Méthode alternative
-function downloadAlternativePDF() {
-    const element = document.getElementById('pdf-content');
-    const printWindow = window.open('', '_blank');
-    
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>CV - ${cvData.personal.fullName}</title>
-            <meta charset="utf-8">
-            <style>
-                body { 
-                    font-family: Arial, sans-serif; 
-                    margin: 20px; 
-                    line-height: 1.4;
-                    color: #333;
-                }
-                .cv-template { 
-                    max-width: 800px; 
-                    margin: 0 auto;
-                    padding: 20px;
-                }
-                .cv-header { 
-                    text-align: center; 
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    color: white;
-                    padding: 2rem;
-                    margin-bottom: 2rem;
-                }
-                .cv-name { 
-                    font-size: 2rem; 
-                    font-weight: bold; 
-                    margin-bottom: 0.5rem; 
-                }
-                .cv-profession { 
-                    font-size: 1.25rem; 
-                    margin-bottom: 1rem; 
-                }
-                .cv-contact { 
-                    display: flex; 
-                    justify-content: center; 
-                    gap: 1.5rem;
-                    flex-wrap: wrap;
-                }
-                .cv-section { 
-                    margin-bottom: 1.5rem; 
-                    padding-bottom: 1rem;
-                    border-bottom: 1px solid #eee;
-                }
-                .cv-section h2 { 
-                    font-size: 1.25rem; 
-                    color: #6366f1;
-                    margin-bottom: 1rem;
-                }
-                .cv-item { margin-bottom: 1rem; }
-                .cv-item h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
-                .company { font-style: italic; color: #666; }
-                .date { color: #999; font-size: 0.9rem; }
-                .skills-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-                .skill-tag { 
-                    background: #e0e7ff; 
-                    color: #3730a3; 
-                    padding: 0.25rem 0.5rem; 
-                    border-radius: 12px;
-                    font-size: 0.8rem;
-                }
-                @media print {
-                    body { margin: 0; }
-                    .cv-template { padding: 0; }
-                }
-            </style>
-        </head>
-        <body>
-            ${element.innerHTML}
-            <script>
-                window.print();
-                setTimeout(() => window.close(), 1000);
-            </script>
-        </body>
-        </html>
-    `);
-    
-    printWindow.document.close();
-}
-
-// Reset
-function setupReset() {
-    document.getElementById('reset-btn').addEventListener('click', function() {
-        if (confirm('Êtes-vous sûr de vouloir tout effacer ?')) {
-            cvData = {
-                personal: { fullName: '', profession: '', email: '', phone: '', location: '', linkedin: '', github: '', portfolio: '', summary: '' },
-                experiences: [],
-                educations: [],
-                skills: [],
-                languages: [],
-                interests: [],
-                template: 'modern'
-            };
-            localStorage.removeItem('cvData');
+    resetData() {
+        if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ? Cette action est irréversible.')) {
+            this.cvData = this.getInitialData();
+            this.nextExperienceId = 1;
+            this.nextEducationId = 1;
+            
+            // Réinitialiser le formulaire
             document.getElementById('cv-form').reset();
             document.getElementById('experience-container').innerHTML = '';
             document.getElementById('education-container').innerHTML = '';
-            updatePreview();
-            showToast('Données effacées avec succès');
+            
+            // Réinitialiser le template
+            this.templateLoader.loadTemplate('modern');
+            this.cvData.template = 'modern';
+            this.updateTemplateSelection();
+            
+            // Effacer le stockage local
+            localStorage.removeItem('cvData');
+            
+            // Mettre à jour l'affichage
+            this.updatePreview();
+            
+            this.showNotification('Données réinitialisées avec succès', 'success');
         }
-    });
+    }
+
+    // ========== NOTIFICATIONS ==========
+    showNotification(message, type = 'info') {
+        const container = document.getElementById('notification-container');
+        if (!container) return;
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                               type === 'error' ? 'exclamation-circle' : 
+                               type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        container.appendChild(notification);
+        
+        // Animation d'entrée
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        // Supprimer après 5 secondes
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    // ========== DONNÉES EXEMPLE ==========
+    loadExampleData() {
+        this.cvData = {
+            personal: {
+                fullName: 'Marie Dubois',
+                profession: 'Développeuse Full Stack',
+                email: 'marie.dubois@email.com',
+                phone: '+33 6 12 34 56 78',
+                location: 'Paris, France',
+                linkedin: 'linkedin.com/in/mariedubois',
+                github: 'github.com/mariedubois',
+                portfolio: 'marie-dubois.dev',
+                summary: 'Développeuse passionnée avec 5 ans d\'expérience dans la création d\'applications web modernes. Expertise en React, Node.js et architectures cloud.'
+            },
+            experiences: [
+                {
+                    id: 1,
+                    title: 'Développeuse Full Stack Senior',
+                    company: 'TechCorp SAS',
+                    period: '2022 - Présent',
+                    description: 'Développement d\'applications React/Node.js, gestion d\'équipe, architecture microservices.'
+                },
+                {
+                    id: 2,
+                    title: 'Développeuse Frontend',
+                    company: 'WebSolutions SARL',
+                    period: '2020 - 2022',
+                    description: 'Création d\'interfaces utilisateur avec React et TypeScript, optimisation des performances.'
+                }
+            ],
+            educations: [
+                {
+                    id: 1,
+                    degree: 'Master en Informatique',
+                    school: 'Université Paris-Saclay',
+                    year: '2020',
+                    description: 'Spécialisation en développement web et architectures distribuées'
+                },
+                {
+                    id: 2,
+                    degree: 'Licence en Informatique',
+                    school: 'Université Paris Descartes',
+                    year: '2018',
+                    description: 'Fondements de la programmation et des systèmes d\'information'
+                }
+            ],
+            skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'Python', 'MongoDB', 'Docker', 'AWS'],
+            languages: ['Français (Natif)', 'Anglais (Courant)', 'Espagnol (Intermédiaire)'],
+            interests: ['Photographie', 'Randonnée', 'Lecture', 'Voyages'],
+            template: 'modern'
+        };
+        
+        this.nextExperienceId = 3;
+        this.nextEducationId = 3;
+        
+        this.populateForm();
+        this.updateTemplateSelection();
+        this.updatePreview();
+        this.saveData();
+        
+        this.showNotification('Données exemple chargées avec succès', 'success');
+    }
 }
 
-// Notifications
-function showToast(message) {
-    const toastContainer = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerHTML = `
-        <i class="fas fa-check-circle"></i>
-        <span>${message}</span>
-    `;
-    
-    toastContainer.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
+// Initialiser l'application globale
+window.app = new CVBuilderApp();
 
-// Zoom
-function setupZoom() {
-    let scale = 1;
-    const preview = document.getElementById('cv-preview');
-    
-    document.getElementById('zoom-in').addEventListener('click', function() {
-        scale = Math.min(scale + 0.1, 1.5);
-        preview.style.transform = `scale(${scale})`;
-        preview.style.transformOrigin = 'top center';
-    });
-    
-    document.getElementById('zoom-out').addEventListener('click', function() {
-        scale = Math.max(scale - 0.1, 0.5);
-        preview.style.transform = `scale(${scale})`;
-        preview.style.transformOrigin = 'top center';
-    });
-}
-
-// Impression
-function setupPrint() {
-    document.getElementById('print-btn').addEventListener('click', function() {
-        window.print();
-    });
-}
-
-// Initialisation
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initialisation de CVBuilder Pro...');
-    
-    loadData();
-    setupNavigation();
-    setupTemplates();
-    setupForm();
-    setupDownload();
-    setupReset();
-    setupZoom();
-    setupPrint();
-    updatePreview();
-    
-    console.log('✅ Application prête !');
-});
-
-// Données exemple
-function loadExampleData() {
-    cvData = {
-        personal: {
-            fullName: 'Marie Dubois',
-            profession: 'Développeuse Full Stack',
-            email: 'marie.dubois@email.com',
-            phone: '+33 6 12 34 56 78',
-            location: 'Paris, France',
-            linkedin: 'linkedin.com/in/mariedubois',
-            github: 'github.com/mariedubois',
-            portfolio: 'marie-dubois.dev',
-            summary: 'Développeuse passionnée avec 5 ans d\'expérience dans la création d\'applications web modernes. Expertise en React, Node.js et architectures cloud.'
-        },
-        experiences: [
-            {
-                id: 1,
-                title: 'Développeuse Full Stack Senior',
-                company: 'TechCorp SAS',
-                period: '2022 - Présent',
-                description: 'Développement d\'applications React/Node.js, gestion d\'équipe, architecture microservices.'
-            }
-        ],
-        educations: [
-            {
-                id: 1,
-                degree: 'Master en Informatique',
-                school: 'Université Paris-Saclay',
-                year: '2020',
-                description: 'Spécialisation en développement web et architectures distribuées'
-            }
-        ],
-        skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'Python', 'MongoDB'],
-        languages: ['Français (Natif)', 'Anglais (Courant)', 'Espagnol (Intermédiaire)'],
-        interests: ['Photographie', 'Randonnée', 'Lecture'],
-        template: 'modern'
-    };
-    
-    populateForm();
-    updatePreview();
-    saveData();
-    showToast('Données exemple chargées !');
-}
+// Exposer les méthodes globales
+window.loadExampleData = () => app.loadExampleData();
