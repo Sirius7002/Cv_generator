@@ -1,0 +1,174 @@
+/* ===== TEMPLATE CRÉATIF ===== */
+.cv-creative {
+    font-family: 'Poppins', sans-serif;
+    max-width: 210mm;
+    min-height: 297mm;
+    background: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.cv-creative::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.cv-creative > * {
+    position: relative;
+    z-index: 1;
+}
+
+.cv-creative .cv-header {
+    padding: 25mm 30mm 15mm;
+    position: relative;
+}
+
+.cv-creative .cv-accent {
+    position: absolute;
+    top: 20mm;
+    left: 20mm;
+    width: 100px;
+    height: 8px;
+    background: linear-gradient(90deg, #f093fb, #f5576c);
+    border-radius: 4px;
+}
+
+.cv-creative .cv-name {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.cv-creative .cv-profession {
+    font-size: 1.5rem;
+    color: #475569;
+    margin-bottom: 2rem;
+    font-weight: 400;
+}
+
+.cv-creative .cv-contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.cv-creative .cv-contact-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(240, 147, 251, 0.2);
+}
+
+.cv-creative .cv-contact-card i {
+    font-size: 1.5rem;
+    color: #f093fb;
+    margin-bottom: 0.75rem;
+}
+
+.cv-creative .cv-contact-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cv-creative .cv-contact-value {
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.cv-creative .cv-content {
+    padding: 0 30mm 25mm;
+}
+
+.cv-creative .cv-section {
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.cv-creative .cv-section-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cv-creative .cv-section-title i {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.cv-creative .cv-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #f093fb;
+    transition: transform 0.3s ease;
+}
+
+.cv-creative .cv-item:hover {
+    transform: translateX(10px);
+}
+
+.cv-creative .cv-item-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.cv-creative .cv-item-subtitle {
+    color: #f5576c;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.cv-creative .cv-item-date {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.cv-creative .cv-skills-showcase {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.cv-creative .cv-skill-bubble {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+}

@@ -1,0 +1,174 @@
+/* ===== TEMPLATE PROFESSIONNEL ===== */
+.cv-professional {
+    font-family: 'Inter', sans-serif;
+    max-width: 210mm;
+    min-height: 297mm;
+    background: white;
+    display: flex;
+}
+
+.cv-professional .cv-sidebar {
+    width: 30%;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 25mm 15mm;
+}
+
+.cv-professional .cv-main {
+    width: 70%;
+    padding: 25mm 20mm;
+}
+
+.cv-professional .cv-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #475569;
+    margin: 0 auto 2rem;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+}
+
+.cv-professional .cv-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.cv-professional .cv-profession {
+    font-size: 1.1rem;
+    color: #cbd5e1;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 400;
+}
+
+.cv-professional .cv-contact-item {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cv-professional .cv-contact-item i {
+    width: 20px;
+    color: #94a3b8;
+}
+
+.cv-professional .cv-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #475569;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cv-professional .cv-skills-list {
+    list-style: none;
+}
+
+.cv-professional .cv-skill-item {
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cv-professional .cv-skill-name {
+    font-size: 0.9rem;
+}
+
+.cv-professional .cv-skill-bar {
+    width: 100px;
+    height: 6px;
+    background: #475569;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.cv-professional .cv-skill-level {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #6366f1;
+    border-radius: 3px;
+}
+
+/* Style pour la partie principale */
+.cv-professional .cv-main-section {
+    margin-bottom: 2rem;
+}
+
+.cv-professional .cv-main-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #6366f1;
+}
+
+.cv-professional .cv-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.cv-professional .cv-timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.cv-professional .cv-timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.cv-professional .cv-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #6366f1;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #e2e8f0;
+}
+
+.cv-professional .cv-item-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.cv-professional .cv-item-subtitle {
+    color: #6366f1;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.cv-professional .cv-item-date {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    font-style: italic;
+}
+
+.cv-professional .cv-item-description {
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}

@@ -5,37 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CVBuilder Pro | Créateur de CV Moderne</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css">
+    <!-- Template par défaut -->
+    <link rel="stylesheet" href="styles/templates/modern.css" id="template-css">
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- Header -->
+        <!-- Header avec navigation -->
         <header class="main-header">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-file-alt"></i>
-                    <span>CVBuilder Pro</span>
+            <div class="header-container">
+                <div class="logo-area">
+                    <div class="logo-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>CVBuilder <span class="gradient-text">Pro</span></h1>
+                        <p class="logo-subtitle">Créateur de CV intelligent</p>
+                    </div>
                 </div>
-                <nav class="header-nav">
-                    <button class="nav-btn active" data-section="form">
-                        <i class="fas fa-edit"></i>
-                        <span>Éditer</span>
-                    </button>
-                    <button class="nav-btn" data-section="templates">
-                        <i class="fas fa-palette"></i>
-                        <span>Modèles</span>
-                    </button>
-                    <button class="nav-btn" data-section="preview">
-                        <i class="fas fa-eye"></i>
-                        <span>Aperçu</span>
-                    </button>
+                
+                <nav class="main-nav">
+                    <ul class="nav-list">
+                        <li class="nav-item active" data-section="form">
+                            <i class="fas fa-edit"></i>
+                            <span>Éditer</span>
+                            <div class="nav-indicator"></div>
+                        </li>
+                        <li class="nav-item" data-section="templates">
+                            <i class="fas fa-palette"></i>
+                            <span>Modèles</span>
+                            <div class="nav-indicator"></div>
+                        </li>
+                        <li class="nav-item" data-section="preview">
+                            <i class="fas fa-eye"></i>
+                            <span>Aperçu</span>
+                            <div class="nav-indicator"></div>
+                        </li>
+                    </ul>
                 </nav>
+                
                 <div class="header-actions">
-                    <button class="btn-secondary" id="reset-btn">
-                        <i class="fas fa-redo"></i>
+                    <button class="btn btn-outline" id="reset-btn">
+                        <i class="fas fa-redo-alt"></i>
+                        <span>Réinitialiser</span>
                     </button>
-                    <button class="btn-primary" id="download-btn">
+                    <button class="btn btn-primary btn-glow" id="download-btn">
                         <i class="fas fa-download"></i>
                         <span>Télécharger PDF</span>
                     </button>
@@ -47,123 +62,143 @@
         <main class="main-content">
             <!-- Section Éditer -->
             <section id="form-section" class="content-section active">
-                <div class="form-container">
-                    <div class="form-header">
-                        <h2><i class="fas fa-user-edit"></i>Crée ton CV</h2>
-                        <p>Remplis les informations pour générer ton CV</p>
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="header-decor">
+                            <div class="decor-circle"></div>
+                            <div class="decor-circle"></div>
+                            <div class="decor-circle"></div>
+                        </div>
+                        <h2><i class="fas fa-magic"></i>Créez votre CV</h2>
+                        <p>Remplissez les informations ci-dessous pour générer votre CV professionnel</p>
                     </div>
 
-                    <form class="modern-form" id="cv-form">
+                    <form id="cv-form" class="cv-form">
                         <!-- Informations Personnelles -->
-                        <div class="form-section-card">
-                            <div class="section-header">
-                                <i class="fas fa-user"></i>
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-user-circle"></i>
                                 <h3>Informations Personnelles</h3>
                             </div>
                             <div class="form-grid">
-                                <div class="form-group">
-                                    <label>Nom complet *</label>
-                                    <input type="text" id="fullName" required placeholder="John Doe">
+                                <div class="form-group floating-label">
+                                    <input type="text" id="fullName" required>
+                                    <label for="fullName">Nom complet *</label>
+                                    <div class="form-underline"></div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Poste recherché</label>
-                                    <input type="text" id="profession" placeholder="Développeur Full Stack">
+                                <div class="form-group floating-label">
+                                    <input type="text" id="profession" required>
+                                    <label for="profession">Poste recherché *</label>
+                                    <div class="form-underline"></div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Email *</label>
-                                    <input type="email" id="email" required placeholder="john@example.com">
+                                <div class="form-group floating-label">
+                                    <input type="email" id="email" required>
+                                    <label for="email">Email professionnel *</label>
+                                    <div class="form-underline"></div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Téléphone</label>
-                                    <input type="tel" id="phone" placeholder="+33 1 23 45 67 89">
+                                <div class="form-group floating-label">
+                                    <input type="tel" id="phone">
+                                    <label for="phone">Téléphone</label>
+                                    <div class="form-underline"></div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Localisation</label>
-                                    <input type="text" id="location" placeholder="Paris, France">
+                                <div class="form-group floating-label">
+                                    <input type="text" id="location">
+                                    <label for="location">Localisation</label>
+                                    <div class="form-underline"></div>
                                 </div>
-                                <div class="form-group full-width">
-                                    <label>Profil professionnel</label>
-                                    <textarea id="summary" placeholder="Décris ton parcours et tes compétences..."></textarea>
+                                <div class="form-group floating-label full-width">
+                                    <textarea id="summary" rows="3"></textarea>
+                                    <label for="summary">Profil professionnel</label>
+                                    <div class="form-underline"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Réseaux -->
-                        <div class="form-section-card">
-                            <div class="section-header">
-                                <i class="fas fa-share-alt"></i>
+                        <!-- Réseaux Professionnels -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-network-wired"></i>
                                 <h3>Réseaux Professionnels</h3>
                             </div>
                             <div class="form-grid">
-                                <div class="form-group">
-                                    <label>LinkedIn</label>
-                                    <input type="url" id="linkedin" placeholder="https://linkedin.com/in/...">
+                                <div class="form-group floating-label">
+                                    <input type="url" id="linkedin">
+                                    <label for="linkedin">LinkedIn</label>
+                                    <div class="form-underline"></div>
                                 </div>
-                                <div class="form-group">
-                                    <label>GitHub</label>
-                                    <input type="url" id="github" placeholder="https://github.com/...">
+                                <div class="form-group floating-label">
+                                    <input type="url" id="github">
+                                    <label for="github">GitHub</label>
+                                    <div class="form-underline"></div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Portfolio</label>
-                                    <input type="url" id="portfolio" placeholder="https://monportfolio.com">
+                                <div class="form-group floating-label">
+                                    <input type="url" id="portfolio">
+                                    <label for="portfolio">Portfolio</label>
+                                    <div class="form-underline"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Expérience -->
-                        <div class="form-section-card">
-                            <div class="section-header">
+                        <!-- Expérience Professionnelle -->
+                        <div class="form-section">
+                            <div class="section-title">
                                 <i class="fas fa-briefcase"></i>
                                 <h3>Expérience Professionnelle</h3>
-                                <button type="button" class="btn-add" id="add-experience">
+                                <button type="button" class="btn btn-add" id="add-experience">
                                     <i class="fas fa-plus"></i>
                                     Ajouter
                                 </button>
                             </div>
-                            <div id="experience-container">
+                            <div id="experience-container" class="dynamic-container">
                                 <!-- Expériences dynamiques -->
                             </div>
                         </div>
 
                         <!-- Formation -->
-                        <div class="form-section-card">
-                            <div class="section-header">
+                        <div class="form-section">
+                            <div class="section-title">
                                 <i class="fas fa-graduation-cap"></i>
                                 <h3>Formation</h3>
-                                <button type="button" class="btn-add" id="add-education">
+                                <button type="button" class="btn btn-add" id="add-education">
                                     <i class="fas fa-plus"></i>
                                     Ajouter
                                 </button>
                             </div>
-                            <div id="education-container">
+                            <div id="education-container" class="dynamic-container">
                                 <!-- Formations dynamiques -->
                             </div>
                         </div>
 
                         <!-- Compétences -->
-                        <div class="form-section-card">
-                            <div class="section-header">
-                                <i class="fas fa-code"></i>
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-cogs"></i>
                                 <h3>Compétences</h3>
                             </div>
-                            <div class="form-group full-width">
-                                <label>Compétences techniques (séparées par des virgules)</label>
-                                <input type="text" id="skills" placeholder="JavaScript, React, Node.js, Python...">
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Langues (séparées par des virgules)</label>
-                                <input type="text" id="languages" placeholder="Français, Anglais, Espagnol...">
+                            <div class="skills-section">
+                                <div class="form-group floating-label full-width">
+                                    <input type="text" id="skills" placeholder="JavaScript, React, Node.js...">
+                                    <label for="skills">Compétences techniques (séparées par des virgules)</label>
+                                    <div class="form-underline"></div>
+                                </div>
+                                <div class="form-group floating-label full-width">
+                                    <input type="text" id="languages" placeholder="Français, Anglais, Espagnol...">
+                                    <label for="languages">Langues parlées</label>
+                                    <div class="form-underline"></div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Centres d'intérêt -->
-                        <div class="form-section-card">
-                            <div class="section-header">
+                        <div class="form-section">
+                            <div class="section-title">
                                 <i class="fas fa-heart"></i>
-                                <h3>Centres d'Intérêt</h3>
+                                <h3>Centres d'intérêt</h3>
                             </div>
-                            <div class="form-group full-width">
+                            <div class="form-group floating-label full-width">
                                 <input type="text" id="interests" placeholder="Voyages, Photographie, Sport...">
+                                <label for="interests">Vos centres d'intérêt</label>
+                                <div class="form-underline"></div>
                             </div>
                         </div>
                     </form>
@@ -172,73 +207,114 @@
 
             <!-- Section Modèles -->
             <section id="templates-section" class="content-section">
-                <div class="templates-container">
-                    <h2><i class="fas fa-palette"></i>Choisis ton style</h2>
-                    <p>Sélectionne le modèle qui te correspond</p>
-                    
+                <div class="section-container">
+                    <div class="section-header">
+                        <h2><i class="fas fa-palette"></i>Choisissez votre style</h2>
+                        <p>Sélectionnez un modèle qui correspond à votre personnalité professionnelle</p>
+                    </div>
+
                     <div class="templates-grid">
+                        <!-- Template Moderne -->
                         <div class="template-card active" data-template="modern">
-                            <div class="template-preview modern-preview">
-                                <div class="preview-content">
-                                    <div class="preview-header"></div>
-                                    <div class="preview-body">
-                                        <div class="preview-line short"></div>
-                                        <div class="preview-line"></div>
+                            <div class="template-preview">
+                                <div class="preview-header modern-bg">
+                                    <div class="preview-name">Jean Dupont</div>
+                                    <div class="preview-title">Développeur Full Stack</div>
+                                </div>
+                                <div class="preview-body">
+                                    <div class="preview-section">
+                                        <div class="preview-line long"></div>
                                         <div class="preview-line medium"></div>
+                                    </div>
+                                    <div class="preview-section">
+                                        <div class="preview-line short"></div>
+                                        <div class="preview-line long"></div>
                                     </div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Moderne</h4>
                                 <p>Design épuré et contemporain</p>
+                                <div class="template-tags">
+                                    <span>Minimaliste</span>
+                                    <span>Élégant</span>
+                                </div>
+                            </div>
+                            <div class="template-select">
+                                <i class="fas fa-check"></i>
+                                Sélectionné
                             </div>
                         </div>
 
+                        <!-- Template Professionnel -->
                         <div class="template-card" data-template="professional">
-                            <div class="template-preview professional-preview">
+                            <div class="template-preview">
+                                <div class="preview-sidebar professional-bg">
+                                    <div class="preview-avatar"></div>
+                                </div>
                                 <div class="preview-content">
-                                    <div class="preview-sidebar"></div>
-                                    <div class="preview-main">
-                                        <div class="preview-line"></div>
-                                        <div class="preview-line short"></div>
-                                    </div>
+                                    <div class="preview-line"></div>
+                                    <div class="preview-line short"></div>
+                                    <div class="preview-line medium"></div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Professionnel</h4>
                                 <p>Style corporate élégant</p>
+                                <div class="template-tags">
+                                    <span>Corporate</span>
+                                    <span>Structuré</span>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Template Créatif -->
                         <div class="template-card" data-template="creative">
-                            <div class="template-preview creative-preview">
-                                <div class="preview-content">
+                            <div class="template-preview creative-bg">
+                                <div class="preview-header">
                                     <div class="preview-accent"></div>
-                                    <div class="preview-body">
-                                        <div class="preview-line"></div>
-                                        <div class="preview-line medium"></div>
-                                    </div>
+                                </div>
+                                <div class="preview-body">
+                                    <div class="preview-line creative-line"></div>
+                                    <div class="preview-line creative-line short"></div>
+                                    <div class="preview-line creative-line"></div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Créatif</h4>
-                                <p>Design original et coloré</p>
+                                <p>Design original et expressif</p>
+                                <div class="template-tags">
+                                    <span>Coloré</span>
+                                    <span>Innovant</span>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Template Executive -->
                         <div class="template-card" data-template="executive">
-                            <div class="template-preview executive-preview">
-                                <div class="preview-content">
-                                    <div class="preview-header dark"></div>
-                                    <div class="preview-body">
-                                        <div class="preview-line"></div>
-                                        <div class="preview-line short"></div>
+                            <div class="template-preview executive-bg">
+                                <div class="preview-header executive-header">
+                                    <div class="preview-line"></div>
+                                    <div class="preview-line short"></div>
+                                </div>
+                                <div class="preview-body">
+                                    <div class="preview-columns">
+                                        <div class="preview-column">
+                                            <div class="preview-line"></div>
+                                        </div>
+                                        <div class="preview-column">
+                                            <div class="preview-line short"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="template-info">
                                 <h4>Executive</h4>
                                 <p>Luxe et sophistication</p>
+                                <div class="template-tags">
+                                    <span>Premium</span>
+                                    <span>Élégant</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -247,25 +323,39 @@
 
             <!-- Section Aperçu -->
             <section id="preview-section" class="content-section">
-                <div class="preview-container">
+                <div class="section-container">
                     <div class="preview-header">
-                        <h2><i class="fas fa-eye"></i>Aperçu en direct</h2>
-                        <div class="preview-actions">
-                            <button class="btn-icon" id="zoom-out">
-                                <i class="fas fa-search-minus"></i>
-                            </button>
-                            <button class="btn-icon" id="zoom-in">
-                                <i class="fas fa-search-plus"></i>
-                            </button>
-                            <button class="btn-icon" id="print-btn">
-                                <i class="fas fa-print"></i>
-                            </button>
+                        <div class="preview-title">
+                            <h2><i class="fas fa-eye"></i>Aperçu en direct</h2>
+                            <p>Votre CV se met à jour automatiquement</p>
+                        </div>
+                        <div class="preview-controls">
+                            <div class="zoom-controls">
+                                <button class="btn-icon" id="zoom-out" title="Zoom -">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <span class="zoom-level">100%</span>
+                                <button class="btn-icon" id="zoom-in" title="Zoom +">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                            </div>
+                            <div class="preview-actions">
+                                <button class="btn btn-secondary" id="print-btn">
+                                    <i class="fas fa-print"></i>
+                                    Imprimer
+                                </button>
+                                <button class="btn btn-primary btn-glow" id="generate-pdf">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Générer PDF
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="preview-content">
-                        <div id="cv-preview" class="cv-preview">
-                            <div class="cv-template modern" id="pdf-content">
-                                <!-- Le CV sera généré ici -->
+
+                    <div class="preview-wrapper">
+                        <div class="preview-container" id="preview-container">
+                            <div class="preview-paper" id="cv-preview">
+                                <!-- CV généré ici -->
                             </div>
                         </div>
                     </div>
@@ -273,19 +363,48 @@
             </section>
         </main>
 
-        <!-- Notifications -->
-        <div id="toast-container" class="toast-container"></div>
+        <!-- Footer -->
+        <footer class="main-footer">
+            <div class="footer-content">
+                <p>CVBuilder Pro © 2024 - Créateur de CV professionnel</p>
+                <div class="footer-links">
+                    <a href="#"><i class="fas fa-question-circle"></i> Aide</a>
+                    <a href="#"><i class="fas fa-shield-alt"></i> Confidentialité</a>
+                    <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                </div>
+            </div>
+        </footer>
 
-        <!-- Overlay de chargement PDF -->
-        <div id="pdf-loading" class="pdf-loading">
-            <div class="loading-content">
-                <div class="spinner"></div>
-                <p>Génération du PDF en cours...</p>
+        <!-- Notifications -->
+        <div id="notification-container" class="notification-container"></div>
+
+        <!-- Overlay de chargement -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-center"></div>
+            </div>
+            <p class="loading-text">Génération du PDF en cours...</p>
+        </div>
+
+        <!-- Modal de confirmation -->
+        <div id="confirm-modal" class="modal">
+            <div class="modal-content">
+                <h3>Confirmation</h3>
+                <p id="modal-message"></p>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="modal-cancel">Annuler</button>
+                    <button class="btn btn-primary" id="modal-confirm">Confirmer</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Scripts -->
+    <script src="scripts/templateLoader.js"></script>
+    <script src="scripts/pdfGenerator.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>
