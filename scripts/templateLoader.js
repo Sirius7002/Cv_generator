@@ -1,7 +1,6 @@
 /**
  * TemplateLoader - Charge et rend les templates de CV
  */
-
 class TemplateLoader {
     constructor() {
         this.templates = {
@@ -19,6 +18,16 @@ class TemplateLoader {
         // Charger le template sauvegardé ou par défaut
         const savedTemplate = localStorage.getItem('cvTemplate') || 'modern';
         this.loadTemplate(savedTemplate);
+        
+        // Mettre à jour le sélecteur de template s'il existe
+        this.updateTemplateSelector(savedTemplate);
+    }
+
+    updateTemplateSelector(templateName) {
+        const selector = document.getElementById('template-selector');
+        if (selector) {
+            selector.value = templateName;
+        }
     }
 
     loadTemplate(templateName) {
@@ -35,20 +44,11 @@ class TemplateLoader {
             link.href = this.templates[templateName];
         }
         
-        // Mettre à jour le nom du template dans l'interface
-        const templateNameElement = document.getElementById('current-template-name');
-        if (templateNameElement) {
-            const templateNames = {
-                'modern': 'Moderne',
-                'professional': 'Professionnel',
-                'creative': 'Créatif',
-                'executive': 'Executive'
-            };
-            templateNameElement.textContent = templateNames[templateName] || templateName;
-        }
-        
         // Sauvegarder la préférence
         localStorage.setItem('cvTemplate', templateName);
+        
+        // Mettre à jour le sélecteur
+        this.updateTemplateSelector(templateName);
         
         console.log(`🎨 Template chargé: ${templateName}`);
         return templateName;
@@ -82,66 +82,276 @@ class TemplateLoader {
         }
         
         preview.innerHTML = html;
-        this.attachDynamicBehaviors();
+        
+        // Déclencher un événement pour informer que le CV a été rendu
+        document.dispatchEvent(new CustomEvent('cvRendered', {
+            detail: { template: this.currentTemplate }
+        }));
     }
 
-    // ========== TEMPLATE MODERNE ==========
-    
     generateModernHTML(data) {
         const { personal, experiences = [], educations = [], skills = [], languages = [], interests = [] } = data;
         
         return `
             <div class="cv-modern">
-                <!-- En-tête -->
-                <div class="cv-header">
-                    <div class="header-content">
-                        <div class="header-left">
-                            <div class="cv-photo">
-                                ${personal.photo ? 
-                                    `<img src="${personal.photo}" alt="${personal.fullName || 'Photo'}" crossorigin="anonymous">` : 
-                                    `<div class="photo-placeholder"><i class="fas fa-user-circle"></i></div>`
-                                }
+                <div class="cv-container">
+                    <!-- Colonne de gauche -->
+                    <div class="cv-sidebar">
+                        <!-- Photo en haut à gauche -->
+                        ${personal.photo ? `
+                            <div class="cv-photo sidebar-photo">
+                                <img src="${personal.photo}" alt="${personal.fullName}" crossorigin="anonymous">
                             </div>
-                            <div class="header-text">
-                                <h1 class="cv-name">${personal.fullName || 'Nom Prénom'}</h1>
-                                <h2 class="cv-profession">${personal.profession || 'Profession'}</h2>
+                        ` : ''}
+                        
+                        <!-- Informations de contact -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title">
+                                <i class="fas fa-address-card"></i>
+                                <span>Contact</span>
+                            </h3>
+                            <div class="sidebar-content">
+                                ${personal.email ? `<div class="contact-item"><i class="fas fa-envelope"></i><span>${personal.email}</span></div>` : ''}
+                                ${personal.phone ? `<div class="contact-item"><i class="fas fa-phone"></i><span>${personal.phone}</span></div>` : ''}
+                                ${personal.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>${personal.location}</span></div>` : ''}
+                                ${personal.website ? `<div class="contact-item"><i class="fas fa-globe"></i><span>${personal.website}</span></div>` : ''}
+                                ${personal.linkedin ? `<div class="contact-item"><i class="fab fa-linkedin"></i><span>${personal.linkedin}</span></div>` : ''}
+                                ${personal.github ? `<div class="contact-item"><i class="fab fa-github"></i><span>${personal.github}</span></div>` : ''}
                             </div>
                         </div>
-                        <div class="contact-info">
-                            ${personal.email ? `<div class="contact-item"><i class="fas fa-envelope"></i>${personal.email}</div>` : ''}
-                            ${personal.phone ? `<div class="contact-item"><i class="fas fa-phone"></i>${personal.phone}</div>` : ''}
-                            ${personal.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i>${personal.location}</div>` : ''}
-                            ${personal.linkedin ? `<div class="contact-item"><i class="fab fa-linkedin"></i>${personal.linkedin}</div>` : ''}
-                            ${personal.github ? `<div class="contact-item"><i class="fab fa-github"></i>${personal.github}</div>` : ''}
+                        
+                        <!-- Compétences/Expertises -->
+                        ${skills.length > 0 ? `
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title">
+                                <i class="fas fa-cogs"></i>
+                                <span>Expertises</span>
+                            </h3>
+                            <div class="sidebar-content">
+                                <div class="sidebar-skills">
+                                    ${skills.map(skill => `
+                                        <div class="sidebar-skill-item">
+                                            <span class="sidebar-skill-name">${skill.trim()}</span>
+                                            <div class="sidebar-skill-bar">
+                                                <div class="sidebar-skill-level" style="width: ${Math.floor(Math.random() * 30) + 70}%"></div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
                         </div>
+                        ` : ''}
+                        
+                        <!-- Langues -->
+                        ${languages.length > 0 ? `
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title">
+                                <i class="fas fa-language"></i>
+                                <span>Langues</span>
+                            </h3>
+                            <div class="sidebar-content">
+                                <div class="sidebar-languages">
+                                    ${languages.map(lang => `
+                                        <div class="sidebar-language-item">
+                                            <div class="sidebar-language-header">
+                                                <span class="sidebar-language-name">${lang.name || lang}</span>
+                                                <span class="sidebar-language-level">${this.getLanguageLevelLabel(lang.level || 3)}</span>
+                                            </div>
+                                            <div class="sidebar-language-bar">
+                                                <div class="sidebar-language-progress" style="width: ${((lang.level || 3) / 5) * 100}%"></div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <!-- Intérêts -->
+                        ${interests.length > 0 ? `
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title">
+                                <i class="fas fa-heart"></i>
+                                <span>Centres d'Intérêt</span>
+                            </h3>
+                            <div class="sidebar-content">
+                                <div class="sidebar-interests">
+                                    ${interests.map(interest => `
+                                        <div class="sidebar-interest-item">
+                                            <i class="fas fa-${this.getInterestIcon(interest)}"></i>
+                                            <span>${interest.trim()}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Contenu principal -->
+                    <div class="cv-main">
+                        <!-- Header avec nom et profession -->
+                        <div class="main-header">
+                            <h1 class="cv-name">${personal.fullName || 'Nom Prénom'}</h1>
+                            <h2 class="cv-profession">${personal.profession || 'Profession'}</h2>
+                        </div>
+                        
+                        ${personal.summary ? `
+                        <section class="cv-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-user"></i>
+                                <span>Profil Professionnel</span>
+                            </h3>
+                            <div class="section-content">
+                                <p class="profile-text">${personal.summary}</p>
+                            </div>
+                        </section>
+                        ` : ''}
+                        
+                        ${experiences.length > 0 ? `
+                        <section class="cv-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Expérience Professionnelle</span>
+                            </h3>
+                            <div class="section-content">
+                                ${experiences.map(exp => `
+                                    <div class="experience-item">
+                                        <div class="experience-header">
+                                            <h4 class="experience-title">${exp.title || 'Poste'}</h4>
+                                            <div class="experience-subtitle">
+                                                <span class="company">${exp.company || 'Entreprise'}</span>
+                                                <span class="period">${exp.period || 'Période'}</span>
+                                            </div>
+                                        </div>
+                                        ${exp.description ? `<div class="experience-description">${exp.description}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </section>
+                        ` : ''}
+                        
+                        ${educations.length > 0 ? `
+                        <section class="cv-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Formation</span>
+                            </h3>
+                            <div class="section-content">
+                                ${educations.map(edu => `
+                                    <div class="education-item">
+                                        <div class="education-header">
+                                            <h4 class="education-title">${edu.degree || 'Diplôme'}</h4>
+                                            <div class="education-subtitle">
+                                                <span class="school">${edu.school || 'Établissement'}</span>
+                                                <span class="year">${edu.year || 'Année'}</span>
+                                            </div>
+                                        </div>
+                                        ${edu.description ? `<div class="education-description">${edu.description}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </section>
+                        ` : ''}
                     </div>
                 </div>
+            </div>
+        `;
+    }
 
-                <!-- Contenu principal -->
-                <div class="cv-content">
-                    <!-- Profil -->
+    generateProfessionalHTML(data) {
+        const { personal, experiences = [], educations = [], skills = [], languages = [], interests = [] } = data;
+        
+        return `
+            <div class="cv-professional">
+                <div class="cv-sidebar">
+                    ${personal.photo ? `
+                        <div class="cv-photo">
+                            <img src="${personal.photo}" alt="${personal.fullName}" crossorigin="anonymous">
+                        </div>
+                    ` : ''}
+                    
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title"><i class="fas fa-user"></i>Contact</h3>
+                        <div class="sidebar-content">
+                            ${personal.email ? `<div class="contact-item"><i class="fas fa-envelope"></i><span>${personal.email}</span></div>` : ''}
+                            ${personal.phone ? `<div class="contact-item"><i class="fas fa-phone"></i><span>${personal.phone}</span></div>` : ''}
+                            ${personal.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>${personal.location}</span></div>` : ''}
+                        </div>
+                    </div>
+
+                    ${skills.length > 0 ? `
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title"><i class="fas fa-code"></i>Compétences</h3>
+                        <div class="sidebar-content">
+                            <div class="skills-grid">
+                                ${skills.map(skill => `
+                                    <div class="skill-item">${skill.trim()}</div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${languages.length > 0 ? `
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title"><i class="fas fa-language"></i>Langues</h3>
+                        <div class="sidebar-content">
+                            ${languages.map(lang => `
+                                <div class="language-item">
+                                    <span class="language-name">${lang.name || lang}</span>
+                                    <div class="language-dots">
+                                        ${Array.from({length: 5}, (_, i) => `
+                                            <span class="language-dot ${i < (lang.level || 3) ? 'filled' : ''}"></span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    ${interests.length > 0 ? `
+                    <div class="sidebar-section">
+                        <h3 class="sidebar-title"><i class="fas fa-heart"></i>Intérêts</h3>
+                        <div class="sidebar-content">
+                            <div class="interests-list">
+                                ${interests.map(interest => `
+                                    <span class="interest-tag">${interest.trim()}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <div class="cv-main">
+                    <div class="cv-header">
+                        <h1 class="cv-name">${personal.fullName || 'Nom Prénom'}</h1>
+                        <h2 class="cv-profession">${personal.profession || 'Profession'}</h2>
+                    </div>
+
                     ${personal.summary ? `
                     <section class="cv-section">
-                        <h3 class="section-title"><i class="fas fa-user"></i>Profil Professionnel</h3>
+                        <h3 class="section-title"><i class="fas fa-user-tie"></i>Profil</h3>
                         <div class="section-content">
                             <p class="profile-text">${personal.summary}</p>
                         </div>
                     </section>
                     ` : ''}
 
-                    <!-- Expériences -->
                     ${experiences.length > 0 ? `
                     <section class="cv-section">
-                        <h3 class="section-title"><i class="fas fa-briefcase"></i>Expérience Professionnelle</h3>
+                        <h3 class="section-title"><i class="fas fa-briefcase"></i>Expérience</h3>
                         <div class="section-content">
                             ${experiences.map(exp => `
                                 <div class="experience-item">
                                     <div class="experience-header">
-                                        <h4 class="experience-title">${exp.title || 'Poste'}</h4>
-                                        <div class="experience-subtitle">
+                                        <div class="experience-left">
+                                            <h4 class="experience-title">${exp.title || 'Poste'}</h4>
                                             <span class="company">${exp.company || 'Entreprise'}</span>
-                                            <span class="period">${exp.period || 'Période'}</span>
                                         </div>
+                                        <span class="period">${exp.period || 'Période'}</span>
                                     </div>
                                     ${exp.description ? `<div class="experience-description">${exp.description}</div>` : ''}
                                 </div>
@@ -150,7 +360,6 @@ class TemplateLoader {
                     </section>
                     ` : ''}
 
-                    <!-- Formation -->
                     ${educations.length > 0 ? `
                     <section class="cv-section">
                         <h3 class="section-title"><i class="fas fa-graduation-cap"></i>Formation</h3>
@@ -158,11 +367,11 @@ class TemplateLoader {
                             ${educations.map(edu => `
                                 <div class="education-item">
                                     <div class="education-header">
-                                        <h4 class="education-title">${edu.degree || 'Diplôme'}</h4>
-                                        <div class="education-subtitle">
+                                        <div class="education-left">
+                                            <h4 class="education-title">${edu.degree || 'Diplôme'}</h4>
                                             <span class="school">${edu.school || 'Établissement'}</span>
-                                            <span class="year">${edu.year || 'Année'}</span>
                                         </div>
+                                        <span class="year">${edu.year || 'Année'}</span>
                                     </div>
                                     ${edu.description ? `<div class="education-description">${edu.description}</div>` : ''}
                                 </div>
@@ -170,513 +379,163 @@ class TemplateLoader {
                         </div>
                     </section>
                     ` : ''}
-
-                    <!-- Compétences -->
-                    ${skills.length > 0 ? `
-                    <section class="cv-section">
-                        <h3 class="section-title"><i class="fas fa-code"></i>Compétences Techniques</h3>
-                        <div class="section-content">
-                            <div class="skills-list">
-                                ${skills.map(skill => `
-                                    <span class="skill-tag">${skill.trim()}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </section>
-                    ` : ''}
-
-                    <!-- Langues -->
-                    ${languages.length > 0 ? `
-                    <section class="cv-section">
-                        <h3 class="section-title"><i class="fas fa-language"></i>Langues</h3>
-                        <div class="section-content">
-                            ${languages.map(lang => `
-                                <div class="language-item">
-                                    <div class="language-header">
-                                        <span class="language-name">${lang.name || lang}</span>
-                                        <span class="language-level">${this.getLanguageLevelLabel(lang.level || 3)}</span>
-                                    </div>
-                                    <div class="language-bar">
-                                        <div class="language-progress" style="width: ${((lang.level || 3) / 5) * 100}%"></div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </section>
-                    ` : ''}
-
-                    <!-- Intérêts -->
-                    ${interests.length > 0 ? `
-                    <section class="cv-section">
-                        <h3 class="section-title"><i class="fas fa-heart"></i>Centres d'Intérêt</h3>
-                        <div class="section-content">
-                            <div class="interests-grid">
-                                ${interests.map(interest => `
-                                    <div class="interest-item">
-                                        <i class="fas fa-${this.getInterestIcon(interest)}"></i>
-                                        <span>${interest.trim()}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </section>
-                    ` : ''}
-                </div>
-
-                <!-- Footer -->
-                <div class="cv-footer">
-                    <div class="footer-info">
-                        ${personal.portfolio ? `<p>Portfolio: ${personal.portfolio}</p>` : ''}
-                    </div>
-                    <div class="social-links">
-                        ${personal.linkedin ? `<a href="${personal.linkedin}" class="social-link" target="_blank"><i class="fab fa-linkedin"></i></a>` : ''}
-                        ${personal.github ? `<a href="${personal.github}" class="social-link" target="_blank"><i class="fab fa-github"></i></a>` : ''}
-                        ${personal.email ? `<a href="mailto:${personal.email}" class="social-link"><i class="fas fa-envelope"></i></a>` : ''}
-                    </div>
                 </div>
             </div>
         `;
     }
 
-    // ========== TEMPLATE PROFESSIONNEL ==========
-    
-    generateProfessionalHTML(data) {
-        const { personal, experiences = [], educations = [], skills = [], languages = [], interests = [] } = data;
-        
-        return `
-            <div class="cv-professional">
-                <!-- Sidebar -->
-                <div class="cv-sidebar">
-                    <div class="sidebar-photo">
-                        ${personal.photo ? 
-                            `<img src="${personal.photo}" alt="${personal.fullName || 'Photo'}" crossorigin="anonymous">` : 
-                            `<div class="sidebar-photo-placeholder"><i class="fas fa-user-circle"></i></div>`
-                        }
-                    </div>
-                    
-                    <h1 class="cv-name">${personal.fullName || 'Nom Prénom'}</h1>
-                    <h2 class="cv-profession">${personal.profession || 'Profession'}</h2>
-
-                    <!-- Contact -->
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-title"><i class="fas fa-address-card"></i> Contact</h3>
-                        <div class="contact-info">
-                            ${personal.email ? `<div class="contact-item"><i class="fas fa-envelope"></i><span>${personal.email}</span></div>` : ''}
-                            ${personal.phone ? `<div class="contact-item"><i class="fas fa-phone"></i><span>${personal.phone}</span></div>` : ''}
-                            ${personal.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>${personal.location}</span></div>` : ''}
-                        </div>
-                    </div>
-
-                    <!-- Compétences -->
-                    ${skills.length > 0 ? `
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-title"><i class="fas fa-code"></i> Compétences</h3>
-                        <div class="skills-list">
-                            ${skills.slice(0, 6).map(skill => {
-                                const percentage = 70 + Math.floor(Math.random() * 30);
-                                return `
-                                    <div class="skill-item">
-                                        <div class="skill-name">
-                                            <span>${skill.trim()}</span>
-                                            <span class="skill-percentage">${percentage}%</span>
-                                        </div>
-                                        <div class="skill-bar">
-                                            <div class="skill-level" style="width: ${percentage}%"></div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    <!-- Langues -->
-                    ${languages.length > 0 ? `
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-title"><i class="fas fa-language"></i> Langues</h3>
-                        <div class="languages-sidebar">
-                            ${languages.map(lang => `
-                                <div class="language-sidebar-item">
-                                    <div class="language-sidebar-name">
-                                        <span>${lang.name || lang}</span>
-                                        <span>${this.getLanguageLevelLabel(lang.level || 3)}</span>
-                                    </div>
-                                    <div class="language-sidebar-dots">
-                                        ${[1,2,3,4,5].map(i => `
-                                            <span class="language-sidebar-dot ${i <= (lang.level || 3) ? 'active' : ''}"></span>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
-                </div>
-
-                <!-- Contenu principal -->
-                <div class="cv-main">
-                    <!-- Profil -->
-                    ${personal.summary ? `
-                    <div class="main-section">
-                        <h3 class="main-title">Profil</h3>
-                        <div class="profile-content">
-                            <p>${personal.summary}</p>
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    <!-- Expérience -->
-                    ${experiences.length > 0 ? `
-                    <div class="main-section">
-                        <h3 class="main-title">Expérience Professionnelle</h3>
-                        <div class="timeline">
-                            ${experiences.map(exp => `
-                                <div class="timeline-item">
-                                    <div class="item-header">
-                                        <h4 class="item-title">${exp.title || 'Poste'}</h4>
-                                        <div class="item-subtitle">${exp.company || 'Entreprise'}</div>
-                                        <div class="item-date">${exp.period || 'Période'}</div>
-                                    </div>
-                                    ${exp.description ? `<p class="item-description">${exp.description}</p>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    <!-- Formation -->
-                    ${educations.length > 0 ? `
-                    <div class="main-section">
-                        <h3 class="main-title">Formation</h3>
-                        <div class="timeline">
-                            ${educations.map(edu => `
-                                <div class="timeline-item">
-                                    <div class="item-header">
-                                        <h4 class="item-title">${edu.degree || 'Diplôme'}</h4>
-                                        <div class="item-subtitle">${edu.school || 'Établissement'}</div>
-                                        <div class="item-date">${edu.year || 'Année'}</div>
-                                    </div>
-                                    ${edu.description ? `<p class="item-description">${edu.description}</p>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
-
-                    <!-- Intérêts -->
-                    ${interests.length > 0 ? `
-                    <div class="main-section">
-                        <h3 class="main-title">Centres d'Intérêt</h3>
-                        <div class="interests-minimal">
-                            ${interests.slice(0, 6).map(interest => `
-                                <div class="interest-minimal">
-                                    <i class="fas fa-${this.getInterestIcon(interest)}"></i>
-                                    <span>${interest.trim()}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    // ========== TEMPLATE CRÉATIF ==========
-    
+    // Dans generateCreativeHTML() - Modifier la structure du header
     generateCreativeHTML(data) {
         const { personal, experiences = [], educations = [], skills = [], languages = [], interests = [] } = data;
         
         return `
             <div class="cv-creative">
-                <div class="cv-container">
-                    <!-- En-tête créatif -->
-                    <div class="cv-header">
+                <!-- Header avec photo à gauche et nom à droite -->
+                <div class="cv-header">
+                    <div class="header-bg"></div>
+                    <div class="header-content">
                         <div class="header-left">
-                            <div class="cv-photo">
-                                ${personal.photo ? 
-                                    `<img src="${personal.photo}" alt="${personal.fullName || 'Photo'}" crossorigin="anonymous">` : 
-                                    `<div class="photo-placeholder"><i class="fas fa-user-circle"></i></div>`
-                                }
-                            </div>
-                            <div class="header-info">
-                                <h1 class="cv-name creative-name">${personal.fullName || 'Nom Prénom'}</h1>
-                                <h2 class="cv-profession creative-profession">${personal.profession || 'Profession'}</h2>
-                                <div class="contact-badges">
-                                    ${personal.email ? `<div class="contact-badge"><i class="fas fa-envelope"></i>${personal.email}</div>` : ''}
-                                    ${personal.phone ? `<div class="contact-badge"><i class="fas fa-phone"></i>${personal.phone}</div>` : ''}
-                                    ${personal.location ? `<div class="contact-badge"><i class="fas fa-map-marker-alt"></i>${personal.location}</div>` : ''}
+                            ${personal.photo ? `
+                                <div class="cv-photo header-photo">
+                                    <img src="${personal.photo}" alt="${personal.fullName}" crossorigin="anonymous">
                                 </div>
-                            </div>
-                        </div>
-                        <div class="header-decoration"></div>
-                    </div>
-
-                    <!-- Contenu principal -->
-                    <div class="cv-content">
-                        <div class="main-sections">
-                            <!-- Profil -->
-                            ${personal.summary ? `
-                            <section class="section-creative">
-                                <h3 class="section-title-creative"><i class="fas fa-user"></i> Profil</h3>
-                                <div class="profile-creative">
-                                    <p>${personal.summary}</p>
-                                </div>
-                            </section>
-                            ` : ''}
-
-                            <!-- Expérience -->
-                            ${experiences.length > 0 ? `
-                            <section class="section-creative">
-                                <h3 class="section-title-creative"><i class="fas fa-briefcase"></i> Expérience</h3>
-                                <div class="timeline-creative">
-                                    ${experiences.map(exp => `
-                                        <div class="timeline-item-creative">
-                                            <div class="timeline-header">
-                                                <h4 class="timeline-title">${exp.title || 'Poste'}</h4>
-                                                <div class="timeline-subtitle">${exp.company || 'Entreprise'}</div>
-                                                <div class="timeline-date">${exp.period || 'Période'}</div>
-                                            </div>
-                                            ${exp.description ? `<div class="timeline-description">${exp.description}</div>` : ''}
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </section>
-                            ` : ''}
-
-                            <!-- Formation -->
-                            ${educations.length > 0 ? `
-                            <section class="section-creative">
-                                <h3 class="section-title-creative"><i class="fas fa-graduation-cap"></i> Formation</h3>
-                                <div class="timeline-creative">
-                                    ${educations.map(edu => `
-                                        <div class="timeline-item-creative">
-                                            <div class="timeline-header">
-                                                <h4 class="timeline-title">${edu.degree || 'Diplôme'}</h4>
-                                                <div class="timeline-subtitle">${edu.school || 'Établissement'}</div>
-                                                <div class="timeline-date">${edu.year || 'Année'}</div>
-                                            </div>
-                                            ${edu.description ? `<div class="timeline-description">${edu.description}</div>` : ''}
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </section>
                             ` : ''}
                         </div>
-
-                        <div class="sidebar-creative">
-                            <!-- Compétences -->
-                            ${skills.length > 0 ? `
-                            <section class="skills-creative">
-                                <h3 class="creative-section-title">Compétences</h3>
-                                <div class="skills-creative-content">
-                                    ${skills.map(skill => `
-                                        <div class="skill-creative">
-                                            <div class="skill-header">
-                                                <span class="skill-name">${skill.trim()}</span>
-                                                <span class="skill-percentage">${70 + Math.floor(Math.random() * 30)}%</span>
-                                            </div>
-                                            <div class="skill-bar-creative" style="--skill-level: ${0.7 + Math.random() * 0.3}"></div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </section>
-                            ` : ''}
-
-                            <!-- Langues -->
-                            ${languages.length > 0 ? `
-                            <section class="languages-creative">
-                                <h3 class="creative-section-title">Langues</h3>
-                                <div class="languages-creative-content">
-                                    ${languages.map(lang => `
-                                        <div class="language-creative">
-                                            <div class="language-flag">
-                                                <i class="fas fa-globe"></i>
-                                            </div>
-                                            <div class="language-info">
-                                                <div class="language-name">${lang.name || lang}</div>
-                                                <div class="language-level-bars">
-                                                    ${[1,2,3,4,5].map(i => `
-                                                        <div class="level-bar ${i <= (lang.level || 3) ? 'active' : ''}"></div>
-                                                    `).join('')}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </section>
-                            ` : ''}
-
-                            <!-- Intérêts -->
-                            ${interests.length > 0 ? `
-                            <section class="interests-creative">
-                                <h3 class="creative-section-title">Intérêts</h3>
-                                <div class="interests-grid-creative">
-                                    ${interests.map(interest => `
-                                        <div class="interest-item-creative">
-                                            <div class="interest-icon">
-                                                <i class="fas fa-${this.getInterestIcon(interest)}"></i>
-                                            </div>
-                                            <div class="interest-label">${interest.trim()}</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </section>
-                            ` : ''}
-                        </div>
-                    </div>
-
-                    <!-- Footer créatif -->
-                    <div class="cv-footer-creative">
-                        ${personal.linkedin ? `<a href="${personal.linkedin}" class="social-link-creative" target="_blank"><i class="fab fa-linkedin"></i></a>` : ''}
-                        ${personal.github ? `<a href="${personal.github}" class="social-link-creative" target="_blank"><i class="fab fa-github"></i></a>` : ''}
-                        ${personal.email ? `<a href="mailto:${personal.email}" class="social-link-creative"><i class="fas fa-envelope"></i></a>` : ''}
-                        ${personal.portfolio ? `<a href="${personal.portfolio}" class="social-link-creative" target="_blank"><i class="fas fa-globe"></i></a>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // ========== TEMPLATE EXECUTIF ==========
-    
-    generateExecutiveHTML(data) {
-        const { personal, experiences = [], educations = [], skills = [], languages = [], interests = [] } = data;
-        
-        return `
-            <div class="cv-executive">
-                <!-- En-tête exécutif -->
-                <div class="cv-header-executive">
-                    <div class="header-executive-content">
-                        <div class="executive-info">
-                            <h1 class="cv-name-executive">${personal.fullName || 'Nom Prénom'}</h1>
-                            <h2 class="cv-profession-executive">${personal.profession || 'Profession'}</h2>
-                            <div class="executive-contact">
-                                ${personal.email ? `<div class="contact-item-executive"><i class="fas fa-envelope"></i>${personal.email}</div>` : ''}
-                                ${personal.phone ? `<div class="contact-item-executive"><i class="fas fa-phone"></i>${personal.phone}</div>` : ''}
-                                ${personal.location ? `<div class="contact-item-executive"><i class="fas fa-map-marker-alt"></i>${personal.location}</div>` : ''}
-                            </div>
-                        </div>
-                        <div class="executive-photo">
-                            ${personal.photo ? 
-                                `<img src="${personal.photo}" alt="${personal.fullName || 'Photo'}" crossorigin="anonymous">` : 
-                                `<div class="photo-placeholder-executive"><i class="fas fa-user-circle"></i></div>`
-                            }
+                        <div class="header-right">
+                            <h1 class="cv-name">${personal.fullName || 'Nom Prénom'}</h1>
+                            <h2 class="cv-profession">${personal.profession || 'Profession'}</h2>
                         </div>
                     </div>
                 </div>
 
-                <!-- Contenu principal -->
-                <div class="cv-content-executive">
-                    <div class="main-sections-executive">
-                        <!-- Profil -->
-                        ${personal.summary ? `
-                        <section class="section-executive">
-                            <h3 class="section-title-executive"><i class="fas fa-user-tie"></i>PROFIL PROFESSIONNEL</h3>
-                            <div class="profile-executive">
-                                ${personal.summary}
+                <div class="cv-container">
+                    <!-- Colonne latérale sans photo -->
+                    <div class="cv-sidebar">
+                        <!-- Contact dans sidebar -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-address-card"></i>Contact</h3>
+                            <div class="sidebar-content">
+                                ${personal.email ? `<div class="contact-item"><i class="fas fa-envelope"></i><span class="contact-text">${personal.email}</span></div>` : ''}
+                                ${personal.phone ? `<div class="contact-item"><i class="fas fa-phone"></i><span class="contact-text">${personal.phone}</span></div>` : ''}
+                                ${personal.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i><span class="contact-text">${personal.location}</span></div>` : ''}
+                                ${personal.linkedin ? `<div class="contact-item"><i class="fab fa-linkedin"></i><span class="contact-text">${personal.linkedin}</span></div>` : ''}
+                                ${personal.github ? `<div class="contact-item"><i class="fab fa-github"></i><span class="contact-text">${personal.github}</span></div>` : ''}
                             </div>
-                        </section>
-                        ` : ''}
+                        </div>
 
-                        <!-- Expérience -->
-                        ${experiences.length > 0 ? `
-                        <section class="section-executive">
-                            <h3 class="section-title-executive"><i class="fas fa-briefcase"></i>EXPÉRIENCE PROFESSIONNELLE</h3>
-                            <div class="experiences-executive">
-                                ${experiences.map(exp => `
-                                    <div class="experience-executive">
-                                        <div class="experience-header-executive">
-                                            <div class="experience-info">
-                                                <h4 class="experience-title-executive">${exp.title || 'Poste'}</h4>
-                                                <div class="experience-company-executive">${exp.company || 'Entreprise'}</div>
-                                            </div>
-                                            <div class="experience-period-executive">${exp.period || 'Période'}</div>
-                                        </div>
-                                        ${exp.description ? `<div class="experience-description-executive">${exp.description}</div>` : ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </section>
-                        ` : ''}
-
-                        <!-- Formation -->
-                        ${educations.length > 0 ? `
-                        <section class="section-executive">
-                            <h3 class="section-title-executive"><i class="fas fa-graduation-cap"></i>FORMATION</h3>
-                            <div class="educations-executive">
-                                ${educations.map(edu => `
-                                    <div class="education-executive">
-                                        <div class="education-icon">
-                                            <i class="fas fa-university"></i>
-                                        </div>
-                                        <div class="education-info">
-                                            <h4 class="education-degree-executive">${edu.degree || 'Diplôme'}</h4>
-                                            <div class="education-school-executive">${edu.school || 'Établissement'}</div>
-                                            <div class="education-year-executive">${edu.year || 'Année'}</div>
-                                            ${edu.description ? `<div class="education-description-executive">${edu.description}</div>` : ''}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </section>
-                        ` : ''}
-                    </div>
-
-                    <div class="sidebar-executive">
-                        <!-- Compétences -->
+                        <!-- Compétences dans sidebar -->
                         ${skills.length > 0 ? `
-                        <section class="skills-executive">
-                            <h3 class="section-title-executive"><i class="fas fa-code"></i>COMPÉTENCES</h3>
-                            <div class="skills-executive-content">
-                                ${skills.slice(0, 8).map(skill => {
-                                    const percentage = 75 + Math.floor(Math.random() * 25);
-                                    return `
-                                        <div class="skill-executive">
-                                            <div class="skill-label-executive">
-                                                <span class="skill-name-executive">${skill.trim()}</span>
-                                                <span class="skill-value-executive">${percentage}%</span>
-                                            </div>
-                                            <div class="skill-bar-executive">
-                                                <div class="skill-level-executive" style="width: ${percentage}%"></div>
-                                            </div>
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-code"></i>Compétences</h3>
+                            <div class="sidebar-content">
+                                ${skills.map(skill => `
+                                    <div class="skill-item">
+                                        <div class="skill-header">
+                                            <span class="skill-name">${skill.trim()}</span>
                                         </div>
-                                    `;
-                                }).join('')}
+                                        <div class="skill-bar" style="--skill-level: ${Math.random() * 60 + 40}%"></div>
+                                    </div>
+                                `).join('')}
                             </div>
-                        </section>
+                        </div>
                         ` : ''}
 
-                        <!-- Langues -->
+                        <!-- Langues dans sidebar -->
                         ${languages.length > 0 ? `
-                        <section class="languages-executive">
-                            <h3 class="section-title-executive"><i class="fas fa-language"></i>LANGUES</h3>
-                            <div class="languages-executive-content">
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-language"></i>Langues</h3>
+                            <div class="sidebar-content">
                                 ${languages.map(lang => `
-                                    <div class="language-executive">
-                                        <span class="language-name-executive">${lang.name || lang}</span>
-                                        <div class="language-dots-executive">
-                                            ${[1,2,3,4,5].map(i => `
-                                                <span class="language-dot ${i <= (lang.level || 3) ? 'active' : ''}"></span>
+                                    <div class="language-item">
+                                        <div class="language-header">
+                                            <span class="language-name">${lang.name || lang}</span>
+                                            <span class="language-level">${this.getLanguageLevelLabel(lang.level || 3)}</span>
+                                        </div>
+                                        <div class="language-dots">
+                                            ${Array.from({length: 5}, (_, i) => `
+                                                <span class="language-dot ${i < (lang.level || 3) ? 'filled' : ''}"></span>
                                             `).join('')}
                                         </div>
                                     </div>
                                 `).join('')}
                             </div>
+                        </div>
+                        ` : ''}
+
+                        <!-- Intérêts dans sidebar -->
+                        ${interests.length > 0 ? `
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-heart"></i>Centres d'Intérêt</h3>
+                            <div class="sidebar-content">
+                                <div class="interests-grid">
+                                    ${interests.map(interest => `
+                                        <div class="interest-item">
+                                            <i class="fas fa-${this.getInterestIcon(interest)}"></i>
+                                            <span>${interest.trim()}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="cv-main">
+                        ${personal.summary ? `
+                        <section class="cv-section">
+                            <h3 class="section-title creative-title">
+                                <span class="title-icon"><i class="fas fa-user"></i></span>
+                                <span class="title-text">Profil</span>
+                            </h3>
+                            <div class="section-content">
+                                <p class="profile-text">${personal.summary}</p>
+                            </div>
                         </section>
                         ` : ''}
 
-                        <!-- Intérêts -->
-                        ${interests.length > 0 ? `
-                        <section class="interests-executive">
-                            <h3 class="section-title-executive"><i class="fas fa-heart"></i>CENTRES D'INTÉRÊT</h3>
-                            <div class="interests-grid-executive">
-                                ${interests.slice(0, 8).map(interest => `
-                                    <div class="interest-item-executive">
-                                        <div class="interest-icon-executive">
-                                            <i class="fas fa-${this.getInterestIcon(interest)}"></i>
+                        ${experiences.length > 0 ? `
+                        <section class="cv-section">
+                            <h3 class="section-title creative-title">
+                                <span class="title-icon"><i class="fas fa-briefcase"></i></span>
+                                <span class="title-text">Expériences</span>
+                            </h3>
+                            <div class="section-content">
+                                <div class="timeline-creative">
+                                    ${experiences.map((exp, index) => `
+                                        <div class="timeline-item-creative">
+                                            <div class="timeline-header">
+                                                <h4 class="timeline-title">${exp.title || 'Poste'}</h4>
+                                                <div class="timeline-subtitle">${exp.company || 'Entreprise'}</div>
+                                                <span class="timeline-date">${exp.period || 'Période'}</span>
+                                            </div>
+                                            ${exp.description ? `<div class="timeline-description">${exp.description}</div>` : ''}
                                         </div>
-                                        <div class="interest-label-executive">${interest.trim()}</div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </section>
+                        ` : ''}
+
+                        ${educations.length > 0 ? `
+                        <section class="cv-section">
+                            <h3 class="section-title creative-title">
+                                <span class="title-icon"><i class="fas fa-graduation-cap"></i></span>
+                                <span class="title-text">Formation</span>
+                            </h3>
+                            <div class="section-content">
+                                ${educations.map(edu => `
+                                    <div class="education-item-creative">
+                                        <div class="education-icon">
+                                            <i class="fas fa-university"></i>
+                                        </div>
+                                        <div class="education-content">
+                                            <h4 class="education-title">${edu.degree || 'Diplôme'}</h4>
+                                            <div class="education-subtitle">
+                                                <span class="school">${edu.school || 'Établissement'}</span>
+                                                <span class="year">${edu.year || 'Année'}</span>
+                                            </div>
+                                            ${edu.description ? `<div class="education-description">${edu.description}</div>` : ''}
+                                        </div>
                                     </div>
                                 `).join('')}
                             </div>
@@ -684,22 +543,179 @@ class TemplateLoader {
                         ` : ''}
                     </div>
                 </div>
+            </div>
+        `;
+    }
 
-                <!-- Footer exécutif -->
-                <div class="cv-footer-executive">
-                    <div class="signature">${personal.fullName ? personal.fullName.split(' ')[0] : 'Signature'}</div>
-                    <div class="social-links-executive">
-                        ${personal.linkedin ? `<a href="${personal.linkedin}" class="social-link-executive" target="_blank"><i class="fab fa-linkedin"></i></a>` : ''}
-                        ${personal.github ? `<a href="${personal.github}" class="social-link-executive" target="_blank"><i class="fab fa-github"></i></a>` : ''}
-                        ${personal.email ? `<a href="mailto:${personal.email}" class="social-link-executive"><i class="fas fa-envelope"></i></a>` : ''}
+    // Dans generateExecutiveHTML() - Modifier la structure du header
+    generateExecutiveHTML(data) {
+        const { personal, experiences = [], educations = [], skills = [], languages = [], interests = [] } = data;
+        
+        return `
+            <div class="cv-executive">
+                <!-- Header avec photo à gauche et nom à droite -->
+                <div class="cv-header">
+                    <div class="header-content">
+                        <div class="header-left">
+                            ${personal.photo ? `
+                                <div class="cv-photo header-photo">
+                                    <img src="${personal.photo}" alt="${personal.fullName}" crossorigin="anonymous">
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="header-right">
+                            <div class="header-text">
+                                <h1 class="cv-name">${personal.fullName || 'Nom Prénom'}</h1>
+                                <h2 class="cv-profession">${personal.profession || 'Profession'}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cv-container">
+                    <!-- Colonne latérale sans photo -->
+                    <div class="cv-sidebar">
+                        <!-- Contact dans sidebar -->
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-address-card"></i>Contact</h3>
+                            <div class="sidebar-content">
+                                ${personal.email ? `<div class="contact-item"><i class="fas fa-envelope"></i><span class="contact-text">${personal.email}</span></div>` : ''}
+                                ${personal.phone ? `<div class="contact-item"><i class="fas fa-phone"></i><span class="contact-text">${personal.phone}</span></div>` : ''}
+                                ${personal.location ? `<div class="contact-item"><i class="fas fa-map-marker-alt"></i><span class="contact-text">${personal.location}</span></div>` : ''}
+                                ${personal.linkedin ? `<div class="contact-item"><i class="fab fa-linkedin"></i><span class="contact-text">${personal.linkedin}</span></div>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Compétences dans sidebar -->
+                        ${skills.length > 0 ? `
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-cogs"></i>Expertise</h3>
+                            <div class="sidebar-content">
+                                ${skills.map(skill => `
+                                    <div class="skill-item">
+                                        <div class="skill-header">
+                                            <span class="skill-name">${skill.trim()}</span>
+                                            <span class="skill-percentage">${Math.floor(Math.random() * 30) + 70}%</span>
+                                        </div>
+                                        <div class="skill-bar">
+                                            <div class="skill-level" style="width: ${Math.floor(Math.random() * 30) + 70}%"></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <!-- Langues dans sidebar -->
+                        ${languages.length > 0 ? `
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-language"></i>Langues</h3>
+                            <div class="sidebar-content">
+                                ${languages.map(lang => `
+                                    <div class="language-item">
+                                        <span class="language-name">${lang.name || lang}</span>
+                                        <div class="language-dots">
+                                            ${Array.from({length: 5}, (_, i) => `
+                                                <span class="language-dot ${i < (lang.level || 3) ? 'filled' : ''}"></span>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <!-- Intérêts dans sidebar -->
+                        ${interests.length > 0 ? `
+                        <div class="sidebar-section">
+                            <h3 class="sidebar-title"><i class="fas fa-star"></i>Intérêts</h3>
+                            <div class="sidebar-content">
+                                <div class="interests-grid">
+                                    ${interests.map(interest => `
+                                        <div class="interest-item">
+                                            <i class="fas fa-${this.getInterestIcon(interest)}"></i>
+                                            <span>${interest.trim()}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="cv-main">
+                        ${personal.summary ? `
+                        <section class="cv-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <h3 class="section-title">Profil Professionnel</h3>
+                            </div>
+                            <div class="section-content">
+                                <p class="profile-text">${personal.summary}</p>
+                            </div>
+                        </section>
+                        ` : ''}
+
+                        ${experiences.length > 0 ? `
+                        <section class="cv-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <h3 class="section-title">Expérience Professionnelle</h3>
+                            </div>
+                            <div class="section-content">
+                                ${experiences.map(exp => `
+                                    <div class="experience-item">
+                                        <div class="experience-header">
+                                            <h4 class="experience-title">${exp.title || 'Poste'}</h4>
+                                            <div class="experience-subtitle">
+                                                <span class="company">${exp.company || 'Entreprise'}</span>
+                                                <span class="period">${exp.period || 'Période'}</span>
+                                            </div>
+                                        </div>
+                                        ${exp.description ? `<div class="experience-description">${exp.description}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </section>
+                        ` : ''}
+
+                        ${educations.length > 0 ? `
+                        <section class="cv-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <h3 class="section-title">Formation</h3>
+                            </div>
+                            <div class="section-content">
+                                ${educations.map(edu => `
+                                    <div class="education-item">
+                                        <div class="education-icon">
+                                            <i class="fas fa-certificate"></i>
+                                        </div>
+                                        <div class="education-content">
+                                            <h4 class="education-title">${edu.degree || 'Diplôme'}</h4>
+                                            <div class="education-subtitle">
+                                                <span class="school">${edu.school || 'Établissement'}</span>
+                                                <span class="year">${edu.year || 'Année'}</span>
+                                            </div>
+                                            ${edu.description ? `<div class="education-description">${edu.description}</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </section>
+                        ` : ''}
                     </div>
                 </div>
             </div>
         `;
     }
 
-    // ========== UTILITAIRES ==========
-    
     getLanguageLevelLabel(level) {
         const labels = ['Débutant', 'Intermédiaire', 'Bon', 'Courant', 'Natif'];
         return labels[level - 1] || labels[2];
@@ -720,19 +736,13 @@ class TemplateLoader {
             'tech': 'code',
             'jeux': 'gamepad',
             'nature': 'tree',
-            'randonnée': 'hiking',
+            'muscu': 'dumbbell',
+            'course': 'running',
             'yoga': 'spa',
-            'meditation': 'spa',
+            'peinture': 'paint-brush',
             'écriture': 'pen',
-            'peinture': 'palette',
-            'danse': 'music',
-            'théâtre': 'masks',
-            'science': 'flask',
-            'histoire': 'landmark',
-            'politique': 'vote-yea',
-            'bénévolat': 'hands-helping',
-            'entrepreneuriat': 'lightbulb',
-            'innovation': 'rocket'
+            'vélo': 'bicycle',
+            'rando': 'hiking'
         };
         
         for (const [key, icon] of Object.entries(iconMap)) {
@@ -742,18 +752,6 @@ class TemplateLoader {
         }
         
         return 'heart';
-    }
-
-    attachDynamicBehaviors() {
-        // Animation des barres de progression
-        const progressBars = document.querySelectorAll('.language-progress, .skill-level, .skill-level-executive');
-        progressBars.forEach(bar => {
-            const width = bar.style.width;
-            bar.style.width = '0';
-            setTimeout(() => {
-                bar.style.width = width;
-            }, 100);
-        });
     }
 }
 

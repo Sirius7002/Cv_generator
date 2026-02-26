@@ -1,518 +1,633 @@
 /**
- * PDFGenerator - Générateur de PDF haute fidélité
+ * PDFGenerator - Version avec préservation des templates
+ * Capture haute fidélité avec respect des couleurs et styles
  */
-
 class PDFGenerator {
     constructor() {
         this.isGenerating = false;
-        this.quality = 'high'; // high, medium, low
-        this.removeBranding = true;
+        this.originalStates = new Map();
+        this.qualityProfile = 'high'; // high, medium, fast
+        
+        // Dimensions A4 en pixels (96 DPI)
+        this.A4_WIDTH_PX = 794;   // 210mm
+        this.A4_HEIGHT_PX = 1123; // 297mm
+        this.A4_WIDTH_MM = 210;
+        this.A4_HEIGHT_MM = 297;
+        
+        // Profils de qualité
+        this.profiles = {
+            high: { scale: 3, dpi: 288, jpegQuality: 1.0, timeout: 60000 },
+            medium: { scale: 2, dpi: 192, jpegQuality: 0.95, timeout: 45000 },
+            fast: { scale: 1.5, dpi: 144, jpegQuality: 0.9, timeout: 30000 }
+        };
+        
+        console.log('🎨 PDFGenerator avec préservation des templates initialisé');
     }
 
     async generatePDF(cvData) {
         if (this.isGenerating) {
-            console.warn('⚠️ Génération PDF déjà en cours');
-            this.showNotification('Génération PDF déjà en cours', 'warning');
-            return;
+            this.showNotification('Génération en cours, veuillez patienter...', 'warning');
+            return false;
         }
 
+        this.isGenerating = true;
+        this.showLoading(true, 'Initialisation...');
+
         try {
-            this.isGenerating = true;
-            this.showLoading(true, 'Préparation du PDF...');
+            // 1. Validation rapide
+            if (!this.validateQuick(cvData)) {
+                throw new Error('Données CV incomplètes');
+            }
+
+            // 2. Préparation minimale (sans altérer l'affichage)
+            this.showLoading(true, 'Préparation minimale...');
+            await this.minimalPreparation();
             
-            console.log('🚀 Début génération PDF haute qualité...');
+            // 3. Créer un clone pour la capture (sans toucher à l'original)
+            this.showLoading(true, 'Clonage pour capture...');
+            const clone = await this.createCloneForCapture();
             
-            // Utiliser la méthode haute fidélité
-            await this.generateHighQualityPDF(cvData);
+            // 4. Capture avec préservation des styles
+            this.showLoading(true, 'Capture haute fidélité...');
+            const canvas = await this.captureWithStylePreservation(clone);
             
-            console.log('✅ PDF généré avec succès');
-            this.showNotification('PDF généré avec succès !', 'success');
+            // 5. Validation
+            if (!this.isCaptureValid(canvas)) {
+                throw new Error('La capture a échoué - résultat vide');
+            }
+            
+            // 6. Génération PDF
+            this.showLoading(true, 'Création du PDF...');
+            await this.createPDFFromCanvas(canvas, cvData);
+            
+            this.showNotification('✅ PDF généré avec succès !', 'success');
+            return true;
             
         } catch (error) {
-            console.error('❌ Erreur génération PDF:', error);
-            // Fallback vers méthode simple
-            this.showLoading(true, 'Chargement en cours (méthode alternative)...');
-            await this.generateSimplePDF(cvData);
-            this.showNotification('PDF généré (version simplifiée)', 'info');
+            console.error('❌ Erreur de génération:', error);
+            this.showNotification(`❌ ${error.message}`, 'error');
+            return false;
+            
         } finally {
+            this.cleanup();
             this.isGenerating = false;
             this.showLoading(false);
         }
     }
 
-    async generateHighQualityPDF(cvData) {
-        return new Promise((resolve, reject) => {
-            const preview = document.getElementById('cv-preview');
-            if (!preview) {
-                reject(new Error('Aperçu non trouvé'));
-                return;
-            }
-
-            // Sauvegarder les styles originaux
-            const originalStyles = {
-                transform: preview.style.transform,
-                boxShadow: preview.style.boxShadow,
-                margin: preview.style.margin,
-                position: preview.style.position,
-                width: preview.style.width,
-                minHeight: preview.style.minHeight,
-                maxWidth: preview.style.maxWidth,
-                backgroundColor: preview.style.backgroundColor
-            };
-
-            // Appliquer les styles optimisés pour le PDF
-            preview.style.transform = 'none';
-            preview.style.boxShadow = 'none';
-            preview.style.margin = '0';
-            preview.style.position = 'relative';
-            preview.style.backgroundColor = '#ffffff';
-            
-            // Appliquer les styles A4
-            preview.style.width = '210mm';
-            preview.style.minHeight = '297mm';
-            preview.style.maxWidth = '210mm';
-            preview.style.overflow = 'hidden';
-
-            // Mettre à jour l'UI
-            this.updateProgress(20);
-
-            // Attendre que le style soit appliqué
-            setTimeout(() => {
-                const options = {
-                    scale: this.getScaleForQuality(),
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    width: 794, // 210mm * 3.78
-                    height: 1123, // 297mm * 3.78
-                    windowWidth: 794,
-                    onclone: (clonedDoc) => {
-                        this.updateProgress(40);
-                        
-                        // Nettoyer les éléments de l'application
-                        const clonedPreview = clonedDoc.getElementById('cv-preview');
-                        if (clonedPreview) {
-                            // Supprimer toutes les mentions de CVBuilder
-                            this.removeBrandingElements(clonedPreview);
-                            
-                            // Appliquer les styles d'impression
-                            clonedPreview.style.width = '210mm';
-                            clonedPreview.style.height = 'auto';
-                            clonedPreview.style.boxShadow = 'none';
-                            clonedPreview.style.margin = '0';
-                            clonedPreview.style.padding = '0';
-                            clonedPreview.style.background = '#ffffff';
-                            
-                            // Forcer le chargement des images
-                            const images = clonedPreview.querySelectorAll('img');
-                            images.forEach(img => {
-                                img.crossOrigin = 'anonymous';
-                                img.style.maxWidth = '100%';
-                                img.style.height = 'auto';
-                            });
-                        }
-                    }
-                };
-
-                this.updateProgress(60);
-
-                html2canvas(preview, options)
-                    .then(canvas => {
-                        this.updateProgress(80);
-                        
-                        // Restaurer les styles originaux
-                        preview.style.transform = originalStyles.transform;
-                        preview.style.boxShadow = originalStyles.boxShadow;
-                        preview.style.margin = originalStyles.margin;
-                        preview.style.position = originalStyles.position;
-                        preview.style.width = originalStyles.width;
-                        preview.style.minHeight = originalStyles.minHeight;
-                        preview.style.maxWidth = originalStyles.maxWidth;
-                        preview.style.backgroundColor = originalStyles.backgroundColor;
-
-                        this.convertCanvasToPDF(canvas, cvData);
-                        resolve(true);
-                    })
-                    .catch(error => {
-                        // Restaurer les styles en cas d'erreur
-                        preview.style.transform = originalStyles.transform;
-                        preview.style.boxShadow = originalStyles.boxShadow;
-                        preview.style.margin = originalStyles.margin;
-                        preview.style.position = originalStyles.position;
-                        preview.style.width = originalStyles.width;
-                        preview.style.minHeight = originalStyles.minHeight;
-                        preview.style.maxWidth = originalStyles.maxWidth;
-                        preview.style.backgroundColor = originalStyles.backgroundColor;
-                        
-                        reject(error);
-                    });
-            }, 300);
+    async minimalPreparation() {
+        // Sauvegarder très peu d'état, juste le nécessaire
+        const cvElement = document.getElementById('cv-preview');
+        if (!cvElement) throw new Error('CV non trouvé');
+        
+        this.originalStates.set('cv', {
+            parent: cvElement.parentNode,
+            nextSibling: cvElement.nextSibling,
+            style: cvElement.getAttribute('style')
         });
+        
+        // Activer la preview si nécessaire
+        await this.ensurePreviewActive();
+        
+        // Attendre que l'UI se stabilise
+        await this.wait(300);
     }
 
-    removeBrandingElements(element) {
-        if (!this.removeBranding) return;
-        
-        // Supprimer tous les éléments qui pourraient contenir des mentions
-        const elements = element.querySelectorAll('*');
-        elements.forEach(el => {
-            if (el.textContent && (
-                el.textContent.includes('CVBuilder') || 
-                el.textContent.includes('CV Builder') ||
-                el.textContent.includes('Généré avec') ||
-                el.textContent.includes('www.cvbuilder')
-            )) {
-                el.remove();
+    async ensurePreviewActive() {
+        const previewSection = document.getElementById('preview-section');
+        if (previewSection && !previewSection.classList.contains('active')) {
+            const previewTab = document.querySelector('[data-section="preview"]');
+            if (previewTab) {
+                previewTab.click();
+                await this.wait(800);
             }
-        });
-        
-        // Supprimer les éléments de footer spécifiques
-        const footers = element.querySelectorAll('.cv-footer, .executive-badge, .quality-badge, .footer, .logo-subtitle');
-        footers.forEach(footer => {
-            if (footer.textContent && (
-                footer.textContent.includes('Builder') || 
-                footer.textContent.includes('©') ||
-                footer.textContent.includes('Créez votre CV')
-            )) {
-                footer.remove();
-            }
-        });
-        
-        // Supprimer les logos
-        const logos = element.querySelectorAll('.logo-icon, .logo-text');
-        logos.forEach(logo => logo.remove());
-    }
-
-    getScaleForQuality() {
-        switch (this.quality) {
-            case 'high': return 3;
-            case 'medium': return 2;
-            case 'low': return 1;
-            default: return 2;
         }
     }
 
-    convertCanvasToPDF(canvas, cvData) {
+    async createCloneForCapture() {
+        const original = document.getElementById('cv-preview');
+        if (!original) throw new Error('CV original introuvable');
+        
+        // Créer un clone profond
+        const clone = original.cloneNode(true);
+        
+        // Donner un ID unique au clone
+        clone.id = 'cv-preview-clone-' + Date.now();
+        
+        // Appliquer les styles de capture minimalistes
+        this.applyCloneStyles(clone);
+        
+        // Ajuster le layout du clone (pas de l'original)
+        this.adjustCloneLayout(clone);
+        
+        // Injecter le clone dans le DOM (caché)
+        clone.style.position = 'fixed';
+        clone.style.top = '-9999px';
+        clone.style.left = '-9999px';
+        clone.style.zIndex = '-9999';
+        clone.style.visibility = 'hidden';
+        document.body.appendChild(clone);
+        
+        // Attendre que le clone soit rendu
+        await this.wait(100);
+        
+        return clone;
+    }
+
+    applyCloneStyles(clone) {
+        // Sauvegarder les classes originales
+        const originalClasses = clone.className;
+        
+        // Appliquer les styles de base sans toucher aux couleurs
+        clone.style.cssText = `
+            width: ${this.A4_WIDTH_PX}px !important;
+            height: ${this.A4_HEIGHT_PX}px !important;
+            min-width: ${this.A4_WIDTH_PX}px !important;
+            min-height: ${this.A4_HEIGHT_PX}px !important;
+            max-width: ${this.A4_WIDTH_PX}px !important;
+            max-height: ${this.A4_HEIGHT_PX}px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+            background-color: inherit !important;
+            position: relative !important;
+            overflow: hidden !important;
+            transform: none !important;
+            transition: none !important;
+            animation: none !important;
+        `;
+        
+        // Réappliquer les classes originales pour garder les styles du template
+        clone.className = originalClasses + ' pdf-capture-mode';
+        
+        // Injection CSS pour la capture uniquement
+        this.injectCaptureCSS(clone);
+    }
+
+    injectCaptureCSS(clone) {
+        const style = document.createElement('style');
+        style.id = 'pdf-capture-styles';
+        style.textContent = `
+            /* Styles de capture - Préservation des templates */
+            #${clone.id} {
+                all: initial !important;
+            }
+            
+            #${clone.id} * {
+                all: revert !important;
+                box-sizing: border-box !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            /* Forcer les dimensions A4 */
+            #${clone.id} {
+                width: ${this.A4_WIDTH_PX}px !important;
+                height: ${this.A4_HEIGHT_PX}px !important;
+                background: white !important;
+                position: relative !important;
+                overflow: visible !important;
+            }
+            
+            /* Préserver les styles de template */
+            #${clone.id}.modern-cv {
+                /* Styles spécifiques au template moderne */
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            }
+            
+            #${clone.id}.professional-cv {
+                /* Styles spécifiques au template professionnel */
+                font-family: Georgia, 'Times New Roman', Times, serif !important;
+            }
+            
+            #${clone.id}.creative-cv {
+                /* Styles spécifiques au template créatif */
+                font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif !important;
+            }
+            
+            #${clone.id}.executive-cv {
+                /* Styles spécifiques au template executive */
+                font-family: 'Calibri', 'Candara', 'Segoe', 'Segoe UI', sans-serif !important;
+            }
+            
+            /* Correction des colonnes */
+            #${clone.id} .cv-sidebar,
+            #${clone.id} .left-column,
+            #${clone.id} [class*="sidebar"] {
+                width: 35% !important;
+                float: left !important;
+                clear: none !important;
+            }
+            
+            #${clone.id} .cv-main,
+            #${clone.id} .right-column,
+            #${clone.id} [class*="main"] {
+                width: 65% !important;
+                float: left !important;
+                clear: none !important;
+            }
+            
+            /* Nettoyer les flottants */
+            #${clone.id} .clearfix::after {
+                content: '' !important;
+                display: table !important;
+                clear: both !important;
+            }
+            
+            /* Forcer la visibilité */
+            #${clone.id},
+            #${clone.id} * {
+                visibility: visible !important;
+                opacity: 1 !important;
+                display: block !important;
+            }
+            
+            /* Images */
+            #${clone.id} img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            
+            /* Désactiver les animations */
+            #${clone.id} * {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+            }
+        `;
+        
+        document.head.appendChild(style);
+    }
+
+    adjustCloneLayout(clone) {
+        // Ajustements spécifiques au layout
+        const adjustElements = (selector, styles) => {
+            const elements = clone.querySelectorAll(selector);
+            elements.forEach(el => {
+                Object.assign(el.style, styles);
+            });
+        };
+        
+        // 1. Correction des colonnes
+        adjustElements('.cv-sidebar, .left-column', {
+            width: '35%',
+            float: 'left',
+            boxSizing: 'border-box',
+            position: 'relative'
+        });
+        
+        adjustElements('.cv-main, .right-column', {
+            width: '65%',
+            float: 'left',
+            boxSizing: 'border-box',
+            position: 'relative'
+        });
+        
+        // 2. Correction des sections
+        adjustElements('.cv-section, section', {
+            width: '100%',
+            clear: 'both',
+            margin: '10px 0',
+            padding: '5px 0'
+        });
+        
+        // 3. Assurer la lisibilité du texte
+        adjustElements('h1, h2, h3, h4, h5, h6, p, li, span', {
+            color: 'inherit',
+            fontFamily: 'inherit',
+            fontSize: 'inherit',
+            lineHeight: '1.4'
+        });
+        
+        // 4. S'assurer que les couleurs de fond sont visibles
+        adjustElements('[class*="bg-"], [style*="background"]', {
+            backgroundColor: 'inherit'
+        });
+        
+        // 5. Créer un clearfix à la fin
+        const clearfix = document.createElement('div');
+        clearfix.style.clear = 'both';
+        clearfix.style.height = '0';
+        clearfix.style.visibility = 'hidden';
+        clone.appendChild(clearfix);
+    }
+
+    async captureWithStylePreservation(clone) {
+        const profile = this.profiles[this.qualityProfile];
+        
         try {
+            const options = {
+                scale: profile.scale,
+                useCORS: true,
+                backgroundColor: null, // null pour garder le fond du template
+                logging: true,
+                width: this.A4_WIDTH_PX,
+                height: this.A4_HEIGHT_PX,
+                windowWidth: this.A4_WIDTH_PX,
+                windowHeight: this.A4_HEIGHT_PX,
+                x: 0,
+                y: 0,
+                scrollX: 0,
+                scrollY: 0,
+                allowTaint: true,
+                foreignObjectRendering: true,
+                imageTimeout: profile.timeout,
+                removeContainer: false,
+                onclone: (clonedDoc, clonedElement) => {
+                    // Cette fonction s'exécute sur le clone interne d'html2canvas
+                    // On peut y faire des ajustements supplémentaires
+                    this.finalizeCloneForCapture(clonedElement);
+                }
+            };
+            
+            console.log('🎨 Capture avec préservation des styles...');
+            const canvas = await html2canvas(clone, options);
+            
+            // Vérification immédiate
+            if (!canvas || canvas.width === 0 || canvas.height === 0) {
+                throw new Error('Canvas vide généré');
+            }
+            
+            console.log('✅ Capture réussie:', {
+                dimensions: `${canvas.width}x${canvas.height}`,
+                scale: profile.scale
+            });
+            
+            return canvas;
+            
+        } finally {
+            // Nettoyer le clone du DOM
+            if (clone && clone.parentNode) {
+                clone.parentNode.removeChild(clone);
+            }
+            
+            // Nettoyer les styles injectés
+            const captureStyles = document.getElementById('pdf-capture-styles');
+            if (captureStyles) {
+                captureStyles.remove();
+            }
+        }
+    }
+
+    finalizeCloneForCapture(clonedElement) {
+        // Derniers ajustements avant la capture finale
+        clonedElement.style.width = `${this.A4_WIDTH_PX}px`;
+        clonedElement.style.height = `${this.A4_HEIGHT_PX}px`;
+        clonedElement.style.overflow = 'visible';
+        
+        // S'assurer que toutes les couleurs sont préservées
+        clonedElement.querySelectorAll('*').forEach(el => {
+            // Sauvegarder les couleurs calculées
+            const computedStyle = window.getComputedStyle(el);
+            const color = computedStyle.color;
+            const backgroundColor = computedStyle.backgroundColor;
+            
+            // Si la couleur de fond est transparente, la remplacer par blanc
+            if (backgroundColor === 'rgba(0, 0, 0, 0)' || backgroundColor === 'transparent') {
+                el.style.backgroundColor = '#ffffff';
+            } else {
+                el.style.backgroundColor = backgroundColor;
+            }
+            
+            el.style.color = color;
+        });
+    }
+
+    isCaptureValid(canvas) {
+        if (!canvas) return false;
+        
+        // Vérifier les dimensions
+        const minDimension = 100;
+        if (canvas.width < minDimension || canvas.height < minDimension) {
+            console.error('Canvas trop petit:', canvas.width, 'x', canvas.height);
+            return false;
+        }
+        
+        // Vérifier si le canvas n'est pas entièrement blanc
+        const ctx = canvas.getContext('2d');
+        const sampleWidth = Math.min(100, canvas.width);
+        const sampleHeight = Math.min(100, canvas.height);
+        
+        const imageData = ctx.getImageData(0, 0, sampleWidth, sampleHeight);
+        const data = imageData.data;
+        
+        let coloredPixels = 0;
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            // Si le pixel n'est pas blanc pur
+            if (!(r > 250 && g > 250 && b > 250)) {
+                coloredPixels++;
+            }
+        }
+        
+        const coloredPercentage = (coloredPixels / (data.length / 4)) * 100;
+        console.log('Pourcentage de pixels colorés:', coloredPercentage.toFixed(2) + '%');
+        
+        // Si moins de 10% des pixels sont colorés, la capture est probablement vide
+        return coloredPercentage > 10;
+    }
+
+    validateQuick(cvData) {
+        // Validation minimale
+        if (!cvData.personal?.fullName?.trim()) {
+            this.showNotification('Veuillez saisir votre nom complet', 'warning');
+            return false;
+        }
+        
+        if (!cvData.personal?.profession?.trim()) {
+            this.showNotification('Veuillez saisir votre profession', 'warning');
+            return false;
+        }
+        
+        return true;
+    }
+
+    async createPDFFromCanvas(canvas, cvData) {
+        try {
+            console.log('🖨️ Création du PDF...');
+            
+            if (typeof window.jspdf === 'undefined') {
+                throw new Error('Bibliothèque jsPDF non disponible');
+            }
+            
             const { jsPDF } = window.jspdf;
+            const profile = this.profiles[this.qualityProfile];
+            
+            // Créer un PDF A4
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
                 format: 'a4',
                 compress: true,
-                precision: 100
+                precision: 16
             });
-
-            // Calcul des dimensions
-            const imgWidth = 210; // Largeur A4 en mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-            // Convertir en image PNG pour meilleure qualité
-            const imgData = canvas.toDataURL('image/png', 1.0);
-
-            // Ajouter l'image
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
-
-            // Ajouter les métadonnées
-            pdf.setProperties({
-                title: `CV - ${cvData.personal?.fullName || 'Curriculum Vitae'}`,
-                subject: 'Curriculum Vitae Professionnel',
-                author: cvData.personal?.fullName || '',
-                keywords: 'cv, curriculum vitae, emploi, recrutement, professionnel',
-                creator: '',
-                producer: ''
-            });
-
-            // Générer le nom de fichier
+            
+            // Calculer les dimensions pour remplir la page
+            const pdfWidth = this.A4_WIDTH_MM;
+            const pdfHeight = this.A4_HEIGHT_MM;
+            
+            // Ratio d'aspect du canvas
+            const canvasRatio = canvas.height / canvas.width;
+            const pdfRatio = pdfHeight / pdfWidth;
+            
+            let imgWidth, imgHeight, x, y;
+            
+            if (canvasRatio > pdfRatio) {
+                // L'image est plus haute, on ajuste la largeur
+                imgHeight = pdfHeight;
+                imgWidth = imgHeight / canvasRatio;
+                x = (pdfWidth - imgWidth) / 2;
+                y = 0;
+            } else {
+                // L'image est plus large, on ajuste la hauteur
+                imgWidth = pdfWidth;
+                imgHeight = imgWidth * canvasRatio;
+                x = 0;
+                y = (pdfHeight - imgHeight) / 2;
+            }
+            
+            // Convertir en image
+            const imgData = canvas.toDataURL('image/jpeg', profile.jpegQuality);
+            
+            // Ajouter au PDF
+            pdf.addImage(
+                imgData,
+                'JPEG',
+                x,
+                y,
+                imgWidth,
+                imgHeight,
+                undefined,
+                'FAST'
+            );
+            
+            // Métadonnées
+            const name = cvData.personal?.fullName || 'CV';
+            const profession = cvData.personal?.profession || '';
+            
+            try {
+                pdf.setProperties({
+                    title: `CV - ${name}`,
+                    author: name,
+                    subject: profession,
+                    keywords: 'CV, Curriculum Vitae',
+                    creator: 'CV Builder',
+                    creationDate: new Date()
+                });
+            } catch (e) {
+                console.warn('Impossible de définir les métadonnées:', e);
+            }
+            
+            // Nom du fichier
             const fileName = this.generateFileName(cvData);
-
-            this.updateProgress(95);
-
-            // Télécharger le PDF
-            setTimeout(() => {
-                pdf.save(fileName);
-                this.updateProgress(100);
-            }, 500);
-
+            
+            // Sauvegarder
+            pdf.save(fileName);
+            
+            console.log('✅ PDF sauvegardé:', fileName);
+            
         } catch (error) {
-            console.error('❌ Erreur conversion canvas vers PDF:', error);
+            console.error('❌ Erreur lors de la création du PDF:', error);
             throw error;
         }
     }
 
-    async generateSimplePDF(cvData) {
-        // Méthode fallback simple sans html2canvas
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
-
-        const margin = 20;
-        let y = margin;
-        const pageWidth = 210;
-        const pageHeight = 297;
-        const contentWidth = pageWidth - (2 * margin);
-
-        // Couleurs
-        const primaryColor = [67, 97, 238];
-        const darkColor = [30, 41, 59];
-        const grayColor = [100, 116, 139];
-
-        // Titre
-        pdf.setFontSize(24);
-        pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(...darkColor);
-        pdf.text(cvData.personal.fullName || 'Nom Prénom', margin, y);
-        y += 10;
-
-        // Profession
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setTextColor(...primaryColor);
-        pdf.text(cvData.personal.profession || 'Profession', margin, y);
-        y += 15;
-
-        // Contact
-        pdf.setFontSize(10);
-        pdf.setTextColor(...grayColor);
-        
-        let contactX = margin;
-        if (cvData.personal.email) {
-            pdf.text(`Email: ${cvData.personal.email}`, contactX, y);
-            contactX += 70;
-        }
-        if (cvData.personal.phone) {
-            pdf.text(`Tél: ${cvData.personal.phone}`, contactX, y);
-            contactX += 70;
-        }
-        if (cvData.personal.location) {
-            pdf.text(`Localisation: ${cvData.personal.location}`, contactX, y);
-        }
-        y += 10;
-
-        // Ligne de séparation
-        pdf.setDrawColor(...primaryColor);
-        pdf.setLineWidth(0.5);
-        pdf.line(margin, y, pageWidth - margin, y);
-        y += 15;
-
-        // Profil
-        if (cvData.personal.summary) {
-            pdf.setFontSize(12);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(...darkColor);
-            pdf.text('PROFIL', margin, y);
-            y += 8;
-            
-            pdf.setFontSize(10);
-            pdf.setFont('helvetica', 'normal');
-            pdf.setTextColor(...grayColor);
-            const profileLines = pdf.splitTextToSize(cvData.personal.summary, contentWidth);
-            profileLines.forEach(line => {
-                if (y > pageHeight - 30) {
-                    pdf.addPage();
-                    y = margin;
-                }
-                pdf.text(line, margin, y);
-                y += 5;
-            });
-            y += 10;
-        }
-
-        // Expériences
-        if (cvData.experiences && cvData.experiences.length > 0) {
-            pdf.setFontSize(12);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(...darkColor);
-            pdf.text('EXPÉRIENCE PROFESSIONNELLE', margin, y);
-            y += 10;
-
-            cvData.experiences.forEach(exp => {
-                if (y > pageHeight - 40) {
-                    pdf.addPage();
-                    y = margin;
-                }
-
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text(exp.title || 'Poste', margin, y);
-                y += 5;
-
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'italic');
-                pdf.setTextColor(...primaryColor);
-                pdf.text(`${exp.company || 'Entreprise'} | ${exp.period || 'Période'}`, margin, y);
-                y += 5;
-
-                if (exp.description) {
-                    pdf.setFontSize(9);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(...grayColor);
-                    const descLines = pdf.splitTextToSize(exp.description, contentWidth);
-                    descLines.forEach(line => {
-                        if (y > pageHeight - 30) {
-                            pdf.addPage();
-                            y = margin;
-                        }
-                        pdf.text(`• ${line}`, margin + 5, y);
-                        y += 5;
-                    });
-                }
-                y += 5;
-            });
-        }
-
-        // Formation
-        if (cvData.educations && cvData.educations.length > 0) {
-            if (y > pageHeight - 50) {
-                pdf.addPage();
-                y = margin;
-            }
-            
-            pdf.setFontSize(12);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(...darkColor);
-            pdf.text('FORMATION', margin, y);
-            y += 10;
-
-            cvData.educations.forEach(edu => {
-                if (y > pageHeight - 40) {
-                    pdf.addPage();
-                    y = margin;
-                }
-
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text(edu.degree || 'Diplôme', margin, y);
-                y += 5;
-
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'italic');
-                pdf.setTextColor(...primaryColor);
-                pdf.text(`${edu.school || 'Établissement'} | ${edu.year || 'Année'}`, margin, y);
-                y += 5;
-
-                if (edu.description) {
-                    pdf.setFontSize(9);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(...grayColor);
-                    const descLines = pdf.splitTextToSize(edu.description, contentWidth);
-                    descLines.forEach(line => {
-                        if (y > pageHeight - 30) {
-                            pdf.addPage();
-                            y = margin;
-                        }
-                        pdf.text(`• ${line}`, margin + 5, y);
-                        y += 5;
-                    });
-                }
-                y += 5;
-            });
-        }
-
-        // Compétences
-        if (cvData.skills && cvData.skills.length > 0) {
-            if (y > pageHeight - 30) {
-                pdf.addPage();
-                y = margin;
-            }
-            
-            pdf.setFontSize(12);
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(...darkColor);
-            pdf.text('COMPÉTENCES', margin, y);
-            y += 10;
-
-            pdf.setFontSize(10);
-            pdf.setFont('helvetica', 'normal');
-            pdf.setTextColor(...grayColor);
-            
-            const skillsText = cvData.skills.join(', ');
-            const skillsLines = pdf.splitTextToSize(skillsText, contentWidth);
-            skillsLines.forEach(line => {
-                if (y > pageHeight - 30) {
-                    pdf.addPage();
-                    y = margin;
-                }
-                pdf.text(line, margin, y);
-                y += 5;
-            });
-        }
-
-        // Générer le nom de fichier
-        const fileName = this.generateFileName(cvData);
-        pdf.save(fileName);
-    }
-
     generateFileName(cvData) {
-        const name = cvData.personal?.fullName 
-            ? cvData.personal.fullName
-                  .replace(/\s+/g, '_')
-                  .replace(/[^\w\s]/gi, '')
-                  .substring(0, 50)
-            : 'CV';
-        
-        const date = new Date().toISOString().split('T')[0];
-        return `CV_${name}_${date}.pdf`;
+        try {
+            const name = cvData.personal?.fullName || 'mon_cv';
+            const cleanName = name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9\s-]/g, '')
+                .trim()
+                .replace(/\s+/g, '_')
+                .toLowerCase();
+            
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            
+            return `cv_${cleanName}_${year}${month}${day}.pdf`;
+            
+        } catch (error) {
+            return `cv_${Date.now()}.pdf`;
+        }
     }
 
-    // ========== UI HELPERS ==========
-    
+    cleanup() {
+        // Restaurer l'état original minimal
+        const cvState = this.originalStates.get('cv');
+        if (cvState) {
+            const cvElement = document.getElementById('cv-preview');
+            if (cvElement && cvState.style) {
+                cvElement.setAttribute('style', cvState.style);
+            } else if (cvElement) {
+                cvElement.removeAttribute('style');
+            }
+        }
+        
+        this.originalStates.clear();
+        
+        // Nettoyer les éventuels styles restants
+        const captureStyles = document.getElementById('pdf-capture-styles');
+        if (captureStyles) captureStyles.remove();
+        
+        // Nettoyer les clones restants
+        document.querySelectorAll('[id^="cv-preview-clone-"]').forEach(clone => {
+            clone.parentNode.removeChild(clone);
+        });
+        
+        console.log('🧹 Nettoyage effectué');
+    }
+
+    async wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     showLoading(show, message = 'Chargement...') {
         const overlay = document.getElementById('loading-overlay');
         const loadingMessage = document.getElementById('loading-message');
         
         if (overlay) {
+            overlay.style.display = show ? 'flex' : 'none';
             if (show) {
-                overlay.classList.add('active');
-                if (loadingMessage) {
-                    loadingMessage.textContent = message;
-                }
+                setTimeout(() => {
+                    overlay.style.opacity = '1';
+                }, 10);
             } else {
-                overlay.classList.remove('active');
+                overlay.style.opacity = '0';
             }
         }
-    }
-
-    updateProgress(percentage) {
-        const progressFill = document.getElementById('progress-fill');
-        const loadingMessage = document.getElementById('loading-message');
         
-        if (progressFill) {
-            progressFill.style.width = `${percentage}%`;
-        }
-        
-        if (loadingMessage) {
-            const messages = {
-                20: 'Capture de l\'aperçu...',
-                40: 'Traitement des images...',
-                60: 'Conversion en image...',
-                80: 'Création du PDF...',
-                95: 'Finalisation...',
-                100: 'Téléchargement...'
-            };
-            
-            if (messages[percentage]) {
-                loadingMessage.textContent = messages[percentage];
-            }
+        if (loadingMessage && message) {
+            loadingMessage.textContent = message;
         }
     }
 
     showNotification(message, type = 'info') {
         const container = document.getElementById('notification-container');
-        if (!container) return;
-
+        if (!container) {
+            console.log(`${type}: ${message}`);
+            return;
+        }
+        
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         
-        const icon = type === 'success' ? 'check-circle' : 
-                    type === 'error' ? 'exclamation-circle' : 
-                    type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle'
+        };
         
         notification.innerHTML = `
-            <i class="fas fa-${icon}"></i>
+            <i class="fas fa-${icons[type] || 'info-circle'}"></i>
             <span>${message}</span>
         `;
         
@@ -523,9 +638,45 @@ class PDFGenerator {
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
-        }, 5000);
+        }, 4000);
+    }
+
+    // Méthode pour changer le profil de qualité
+    setQualityProfile(profile) {
+        if (this.profiles[profile]) {
+            this.qualityProfile = profile;
+            console.log(`Profil de qualité défini sur: ${profile}`);
+        }
     }
 }
 
-// Export global
-window.PDFGenerator = PDFGenerator;
+// Initialisation globale
+if (typeof window !== 'undefined') {
+    window.PDFGenerator = PDFGenerator;
+    console.log('✅ PDFGenerator avec préservation des templates chargé');
+    
+    // Vérifier les dépendances
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkDependencies = () => {
+            const missing = [];
+            
+            if (typeof html2canvas === 'undefined') {
+                missing.push('html2canvas');
+            }
+            
+            if (typeof window.jspdf === 'undefined') {
+                missing.push('jsPDF');
+            }
+            
+            if (missing.length > 0) {
+                console.error('❌ Dépendances manquantes:', missing.join(', '));
+                return false;
+            }
+            
+            return true;
+        };
+        
+        // Vérifier après un délai
+        setTimeout(checkDependencies, 1000);
+    });
+}

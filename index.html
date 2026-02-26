@@ -66,7 +66,7 @@
 
                     <!-- Actions rapides -->
                     <div class="action-buttons">
-                        <button class="btn btn-outline btn-sm" onclick="app.loadExampleData()">
+                        <button class="btn btn-outline btn-sm" id="load-example-btn">
                             <i class="fas fa-magic"></i>
                             Exemple
                         </button>
@@ -90,31 +90,6 @@
                     </div>
 
                     <form id="cv-form" class="cv-form">
-                        <!-- Photo Upload -->
-                        <div class="form-section">
-                            <div class="form-section-header">
-                                <i class="fas fa-camera"></i>
-                                <h3>Photo Professionnelle</h3>
-                            </div>
-                            <div class="photo-upload-area">
-                                <div class="photo-preview-container" id="photo-preview">
-                                    <div class="photo-placeholder">
-                                        <i class="fas fa-user-circle"></i>
-                                    </div>
-                                </div>
-                                <div class="photo-controls">
-                                    <button type="button" class="btn btn-outline" id="add-photo-btn">
-                                        <i class="fas fa-plus"></i> Ajouter une photo
-                                    </button>
-                                    <button type="button" class="btn btn-text" id="remove-photo-btn">
-                                        <i class="fas fa-trash"></i> Supprimer
-                                    </button>
-                                    <input type="file" id="photo-input" accept="image/*" class="hidden-input">
-                                    <p class="photo-hint">Taille recommandée : 200×200px (max 2MB)</p>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Informations Personnelles -->
                         <div class="form-section">
                             <div class="form-section-header">
@@ -145,6 +120,31 @@
                                 <div class="form-group full-width">
                                     <label for="summary">Profil professionnel</label>
                                     <textarea id="summary" rows="4" class="form-textarea" placeholder="Décrivez votre profil professionnel en quelques lignes..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Photo Upload -->
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <i class="fas fa-camera"></i>
+                                <h3>Photo Professionnelle</h3>
+                            </div>
+                            <div class="photo-upload-area">
+                                <div class="photo-preview-container" id="photo-preview">
+                                    <div class="photo-placeholder">
+                                        <i class="fas fa-user-circle"></i>
+                                    </div>
+                                </div>
+                                <div class="photo-controls">
+                                    <button type="button" class="btn btn-outline" id="add-photo-btn">
+                                        <i class="fas fa-plus"></i> Ajouter une photo
+                                    </button>
+                                    <button type="button" class="btn btn-text" id="remove-photo-btn">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                    <input type="file" id="photo-input-file" accept="image/*" class="hidden-input">
+                                    <p class="photo-hint">Taille recommandée : 200×200px (max 2MB)</p>
                                 </div>
                             </div>
                         </div>
@@ -230,6 +230,18 @@
                                 <label for="interests">Vos centres d'intérêt</label>
                                 <input type="text" id="interests" class="form-input" placeholder="Voyages, Photographie, Sport, Lecture...">
                                 <p class="form-hint">Séparez par des virgules</p>
+                            </div>
+                        </div>
+
+                        <!-- Actions du formulaire -->
+                        <div class="form-section">
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" id="reset-btn">
+                                    <i class="fas fa-redo"></i> Réinitialiser
+                                </button>
+                                <button type="button" class="btn btn-primary" id="save-btn">
+                                    <i class="fas fa-save"></i> Sauvegarder
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -386,7 +398,7 @@
                                     <i class="fas fa-file-alt"></i>
                                     <h3>CV Builder</h3>
                                     <p>Remplissez le formulaire pour voir votre CV s'afficher ici</p>
-                                    <button class="btn btn-outline mt-2" onclick="app.loadExampleData()">
+                                    <button class="btn btn-outline mt-2" id="load-example-preview-btn">
                                         <i class="fas fa-magic"></i> Charger un exemple
                                     </button>
                                 </div>
@@ -413,11 +425,6 @@
                             <div class="export-info">
                                 <h3>PDF Haute Qualité</h3>
                                 <p>Format idéal pour l'impression et l'envoi par email</p>
-                                <div class="export-quality">
-                                    <span class="quality-badge active">Haute qualité</span>
-                                    <span class="quality-badge">Moyenne</span>
-                                    <span class="quality-badge">Optimisé</span>
-                                </div>
                             </div>
                             <button class="btn btn-primary" id="export-pdf-btn">
                                 <i class="fas fa-download"></i> Télécharger PDF
@@ -432,14 +439,6 @@
                             <div class="export-info">
                                 <h3>Image PNG</h3>
                                 <p>Image haute résolution pour les réseaux sociaux</p>
-                                <div class="export-settings">
-                                    <label>Résolution :</label>
-                                    <select id="image-quality">
-                                        <option value="1">Standard (300 DPI)</option>
-                                        <option value="2">Haute (600 DPI)</option>
-                                        <option value="3">Maximum (1200 DPI)</option>
-                                    </select>
-                                </div>
                             </div>
                             <button class="btn btn-outline" id="export-image-btn">
                                 <i class="fas fa-download"></i> Télécharger PNG
@@ -463,7 +462,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <input type="file" id="json-import-input" accept=".json" class="hidden-input">
+                            <input type="file" id="json-import-file" accept=".json" class="hidden-input">
                         </div>
 
                         <!-- Partage -->
@@ -475,13 +474,13 @@
                                 <h3>Partage rapide</h3>
                                 <p>Partagez votre CV directement sur les plateformes</p>
                                 <div class="share-buttons">
-                                    <button class="btn-icon" title="LinkedIn">
+                                    <button class="btn-icon" id="share-linkedin" title="LinkedIn">
                                         <i class="fab fa-linkedin"></i>
                                     </button>
-                                    <button class="btn-icon" title="Email">
+                                    <button class="btn-icon" id="share-email" title="Email">
                                         <i class="fas fa-envelope"></i>
                                     </button>
-                                    <button class="btn-icon" title="Copier le lien">
+                                    <button class="btn-icon" id="share-link" title="Copier le lien">
                                         <i class="fas fa-link"></i>
                                     </button>
                                 </div>
@@ -519,13 +518,13 @@
         <footer class="app-footer">
             <div class="footer-container">
                 <div class="footer-links">
-                    <button class="btn btn-text" onclick="app.resetForm()">
+                    <button class="btn btn-text" id="reset-footer-btn">
                         <i class="fas fa-redo"></i> Réinitialiser
                     </button>
-                    <button class="btn btn-text" onclick="app.saveCurrentCV()">
+                    <button class="btn btn-text" id="save-footer-btn">
                         <i class="fas fa-save"></i> Sauvegarder
                     </button>
-                    <button class="btn btn-text" onclick="app.showHelp()">
+                    <button class="btn btn-text" id="help-btn">
                         <i class="fas fa-question-circle"></i> Aide
                     </button>
                 </div>
@@ -550,10 +549,6 @@
 
         <!-- Notifications -->
         <div id="notification-container" class="notification-container"></div>
-
-        <!-- Inputs cachés -->
-        <input type="file" id="photo-input-file" accept="image/*" class="hidden-input">
-        <input type="file" id="json-import-file" accept=".json" class="hidden-input">
     </div>
 
     <!-- Bibliothèques -->
