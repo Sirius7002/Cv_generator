@@ -1,4 +1,4 @@
-# CVBuilder - Créateur de CV Professionnel 🚀
+# CVBuilder - Créateur de CV Professionnel
 
 CVBuilder est une application web moderne pour créer, personnaliser et exporter des CV professionnels en toute simplicité.
 
@@ -42,6 +42,7 @@ CVBuilder est une application web moderne pour créer, personnaliser et exporter
 - **PDF** : jsPDF + html2canvas
 - **Icônes** : Font Awesome 6
 - **Polices** : Google Fonts (Inter, Poppins, Montserrat)
+
 
 ## 📁 Structure du Projet
 CVBuilder/
