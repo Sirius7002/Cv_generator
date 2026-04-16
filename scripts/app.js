@@ -15,9 +15,12 @@ class CVBuilderApp {
     init() {
         console.log('🚀 Initialisation de CVBuilder...');
         
+<<<<<<< HEAD
         // Restaurer le thème sauvegardé
         this.restoreTheme();
         
+=======
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
         // Initialiser les écouteurs d'événements
         this.initEventListeners();
         
@@ -63,6 +66,7 @@ class CVBuilderApp {
                 const section = e.currentTarget.dataset.section;
                 this.switchSection(section);
             });
+<<<<<<< HEAD
         });
 
         // Thème toggle switch
@@ -92,6 +96,34 @@ class CVBuilderApp {
             input.addEventListener('input', () => this.updateFromForm());
         });
 
+=======
+        });
+
+        // Thème
+        document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+
+        // Template sélection
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const template = e.currentTarget.dataset.template;
+                this.selectTemplate(template);
+            });
+        });
+
+        // Photo upload
+        document.getElementById('add-photo-btn').addEventListener('click', () => {
+            document.getElementById('photo-input-file').click();
+        });
+
+        document.getElementById('photo-input-file').addEventListener('change', (e) => this.handlePhotoUpload(e));
+        document.getElementById('remove-photo-btn').addEventListener('click', () => this.removePhoto());
+
+        // Form inputs
+        document.querySelectorAll('#cv-form input, #cv-form textarea').forEach(input => {
+            input.addEventListener('input', () => this.updateFromForm());
+        });
+
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
         // Boutons d'ajout dynamique
         document.getElementById('add-experience').addEventListener('click', () => this.addExperience());
         document.getElementById('add-education').addEventListener('click', () => this.addEducation());
@@ -196,9 +228,16 @@ class CVBuilderApp {
         return names[template] || template;
     }
 
+<<<<<<< HEAD
     restoreTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+=======
+    toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
         
         const themeCheckbox = document.getElementById('theme-checkbox');
         if (themeCheckbox) {
@@ -552,9 +591,16 @@ class CVBuilderApp {
 
     async downloadPDF() {
         try {
+<<<<<<< HEAD
             if (!this.pdfGenerator) {
                 this.pdfGenerator = new PDFGenerator();
                 this.pdfGenerator.setQualityProfile('high');
+=======
+            this.showLoading(true, 'Génération du PDF...');
+            
+            if (!this.pdfGenerator) {
+                this.pdfGenerator = new PDFGenerator();
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
             }
             
             await this.pdfGenerator.generatePDF(this.cvData);
@@ -562,7 +608,14 @@ class CVBuilderApp {
         } catch (error) {
             console.error('Erreur génération PDF:', error);
             this.showNotification('Erreur lors de la génération du PDF', 'error');
+        } finally {
+            this.showLoading(false);
         }
+        // Dans app.js, dans la méthode downloadPDF()
+        if (!this.pdfGenerator) {
+            this.pdfGenerator = new PDFGenerator();
+            this.pdfGenerator.setQualityProfile('high'); // Qualité maximale
+       }
     }
 
     async exportImage() {

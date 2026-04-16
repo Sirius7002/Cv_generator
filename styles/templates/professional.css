@@ -1,7 +1,11 @@
 /* ============================================
    TEMPLATE PROFESSIONNEL - CVBuilder
    Style corporate élégant avec sidebar
+<<<<<<< HEAD
    Palette Turquoise : Dark Navy / Turquoise accents
+=======
+   Palette professionnelle : Bleu Marine/Or
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 ============================================ */
 .cv-preview.cv-professional {
     width: 210mm;
@@ -25,7 +29,11 @@
 /* Sidebar */
 .cv-professional .cv-sidebar {
     width: 35%;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #0a1628 0%, #0d1b2a 100%);
+=======
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     color: #f8fafc;
     padding: 3rem 2.5rem;
     position: relative;
@@ -39,7 +47,11 @@
     left: 0;
     right: 0;
     height: 4px;
+<<<<<<< HEAD
     background: linear-gradient(90deg, #00b4d8, #06d6a0);
+=======
+    background: linear-gradient(90deg, #d4a017, #fbbf24);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Photo */
@@ -49,9 +61,15 @@
     border-radius: 50%;
     margin: 0 auto 2.5rem;
     overflow: hidden;
+<<<<<<< HEAD
     border: 4px solid #1b3a5c;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     background: #1b3a5c;
+=======
+    border: 4px solid #334155;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    background: #334155;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     display: flex;
     align-items: center;
     justify-content: center;
@@ -76,13 +94,21 @@
     left: 0;
     width: 100%;
     height: 1px;
+<<<<<<< HEAD
     background: linear-gradient(90deg, #00b4d8, transparent);
+=======
+    background: linear-gradient(90deg, #d4a017, transparent);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-professional .sidebar-title {
     font-size: 1rem;
     font-weight: 600;
+<<<<<<< HEAD
     color: #98b0c9;
+=======
+    color: #cbd5e1;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-bottom: 1.25rem;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -93,7 +119,11 @@
 
 .cv-professional .sidebar-title i {
     font-size: 1rem;
+<<<<<<< HEAD
     color: #48cae4;
+=======
+    color: #fbbf24;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     width: 24px;
     text-align: center;
 }
@@ -110,7 +140,11 @@
     align-items: center;
     gap: 1rem;
     font-size: 0.95rem;
+<<<<<<< HEAD
     color: #cde8f6;
+=======
+    color: #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     padding: 0.75rem;
     background: rgba(0, 180, 216, 0.06);
     border-radius: 8px;
@@ -125,7 +159,11 @@
 
 .cv-professional .contact-item i {
     width: 16px;
+<<<<<<< HEAD
     color: #48cae4;
+=======
+    color: #fbbf24;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-size: 1rem;
     flex-shrink: 0;
 }
@@ -138,12 +176,18 @@
 }
 
 .cv-professional .skill-item {
+<<<<<<< HEAD
     background: rgba(0, 180, 216, 0.1);
     color: #90e0ef;
+=======
+    background: rgba(251, 191, 36, 0.1);
+    color: #fef3c7;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     padding: 0.6rem 1.2rem;
     border-radius: 6px;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+<<<<<<< HEAD
     border: 1px solid rgba(0, 180, 216, 0.2);
 }
 
@@ -151,6 +195,15 @@
     background: rgba(0, 180, 216, 0.18);
     transform: translateY(-2px);
     border-color: rgba(0, 180, 216, 0.4);
+=======
+    border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.cv-professional .skill-item:hover {
+    background: rgba(251, 191, 36, 0.15);
+    transform: translateY(-2px);
+    border-color: rgba(251, 191, 36, 0.4);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Langues dans sidebar */
@@ -160,13 +213,21 @@
     align-items: center;
     margin-bottom: 1rem;
     padding: 0.75rem;
+<<<<<<< HEAD
     background: rgba(0, 180, 216, 0.06);
+=======
+    background: rgba(255, 255, 255, 0.05);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 8px;
 }
 
 .cv-professional .language-name {
     font-size: 0.95rem;
+<<<<<<< HEAD
     color: #cde8f6;
+=======
+    color: #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-professional .language-dots {
@@ -178,13 +239,22 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
+<<<<<<< HEAD
     background: #1b3a5c;
     border: 2px solid #132238;
+=======
+    background: #334155;
+    border: 2px solid #1e293b;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transition: all 0.3s ease;
 }
 
 .cv-professional .language-dot.filled {
+<<<<<<< HEAD
     background: linear-gradient(135deg, #48cae4, #06d6a0);
+=======
+    background: linear-gradient(135deg, #fbbf24, #d4a017);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transform: scale(1.2);
 }
 
@@ -196,12 +266,18 @@
 }
 
 .cv-professional .interest-tag {
+<<<<<<< HEAD
     background: rgba(0, 180, 216, 0.1);
     color: #90e0ef;
+=======
+    background: rgba(251, 191, 36, 0.1);
+    color: #fef3c7;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.85rem;
     transition: all 0.3s ease;
+<<<<<<< HEAD
     border: 1px solid rgba(0, 180, 216, 0.2);
 }
 
@@ -209,6 +285,15 @@
     background: rgba(0, 180, 216, 0.18);
     transform: translateY(-2px);
     border-color: rgba(0, 180, 216, 0.4);
+=======
+    border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.cv-professional .interest-tag:hover {
+    background: rgba(251, 191, 36, 0.15);
+    transform: translateY(-2px);
+    border-color: rgba(251, 191, 36, 0.4);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Contenu principal */
@@ -223,7 +308,11 @@
 .cv-professional .cv-header {
     margin-bottom: 2.5rem;
     padding-bottom: 1.5rem;
+<<<<<<< HEAD
     border-bottom: 2px solid #e0f2fe;
+=======
+    border-bottom: 2px solid #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-professional .cv-name {
@@ -231,17 +320,28 @@
     font-weight: 700;
     text-align: left;
     margin-bottom: 0.5rem;
+<<<<<<< HEAD
     color: #0a1628;
+=======
+    color: #0f172a;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-family: 'Poppins', sans-serif;
 }
 
 .cv-professional .cv-profession {
     font-size: 1.4rem;
     text-align: left;
+<<<<<<< HEAD
     color: #0096c7;
     margin-bottom: 1rem;
     font-weight: 500;
     background: linear-gradient(90deg, #00b4d8, #06d6a0);
+=======
+    color: #1e40af;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    background: linear-gradient(90deg, #1e40af, #3b82f6);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -253,23 +353,39 @@
     background: white;
     padding: 2rem;
     border-radius: 8px;
+<<<<<<< HEAD
     box-shadow: 0 2px 10px rgba(0, 180, 216, 0.05);
     border: 1px solid #e0f2fe;
+=======
+    box-shadow: 0 2px 10px rgba(30, 41, 59, 0.05);
+    border: 1px solid #f1f5f9;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transition: all 0.3s ease;
 }
 
 .cv-professional .cv-section:hover {
+<<<<<<< HEAD
     box-shadow: 0 5px 15px rgba(0, 180, 216, 0.08);
+=======
+    box-shadow: 0 5px 15px rgba(30, 41, 59, 0.08);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transform: translateY(-2px);
 }
 
 .cv-professional .section-title {
     font-size: 1.4rem;
     font-weight: 700;
+<<<<<<< HEAD
     color: #0a1628;
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
     border-bottom: 2px solid #e0f2fe;
+=======
+    color: #0f172a;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     position: relative;
     font-family: 'Poppins', sans-serif;
     display: flex;
@@ -284,11 +400,19 @@
     left: 0;
     width: 50px;
     height: 2px;
+<<<<<<< HEAD
     background: linear-gradient(90deg, #00b4d8, #06d6a0);
 }
 
 .cv-professional .section-title i {
     color: #00b4d8;
+=======
+    background: linear-gradient(90deg, #1e40af, #3b82f6);
+}
+
+.cv-professional .section-title i {
+    color: #1e40af;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-size: 1.2rem;
 }
 
@@ -298,16 +422,26 @@
     font-size: 1.05rem;
     line-height: 1.8;
     padding: 1.5rem;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #f0fdfa 0%, #e0f7fa 100%);
     border-radius: 6px;
     border-left: 4px solid #00b4d8;
+=======
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 6px;
+    border-left: 4px solid #1e40af;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Expériences */
 .cv-professional .experience-item {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
+<<<<<<< HEAD
     border-bottom: 1px solid #e0f2fe;
+=======
+    border-bottom: 1px solid #f1f5f9;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-professional .experience-item:last-child {
@@ -333,13 +467,21 @@
 .cv-professional .experience-title {
     font-size: 1.2rem;
     font-weight: 600;
+<<<<<<< HEAD
     color: #0a1628;
+=======
+    color: #0f172a;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-bottom: 0.5rem;
     word-wrap: break-word;
 }
 
 .cv-professional .company {
+<<<<<<< HEAD
     color: #00b4d8;
+=======
+    color: #1e40af;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-weight: 500;
     font-size: 1.1rem;
     display: flex;
@@ -352,10 +494,17 @@
     color: #64748b;
     font-size: 0.9rem;
     font-style: italic;
+<<<<<<< HEAD
     background: #f0fdfa;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     border: 1px solid #b2ebf2;
+=======
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -365,7 +514,11 @@
     font-size: 1rem;
     line-height: 1.7;
     padding-left: 1rem;
+<<<<<<< HEAD
     border-left: 2px solid #b2ebf2;
+=======
+    border-left: 2px solid #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-top: 1rem;
     word-wrap: break-word;
 }
@@ -374,7 +527,11 @@
 .cv-professional .education-item {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
+<<<<<<< HEAD
     border-bottom: 1px solid #e0f2fe;
+=======
+    border-bottom: 1px solid #f1f5f9;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-professional .education-item:last-child {
@@ -400,13 +557,21 @@
 .cv-professional .education-title {
     font-size: 1.2rem;
     font-weight: 600;
+<<<<<<< HEAD
     color: #0a1628;
+=======
+    color: #0f172a;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-bottom: 0.5rem;
     word-wrap: break-word;
 }
 
 .cv-professional .school {
+<<<<<<< HEAD
     color: #00b4d8;
+=======
+    color: #1e40af;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-weight: 500;
     font-size: 1.1rem;
     display: flex;
@@ -419,10 +584,17 @@
     color: #64748b;
     font-size: 0.9rem;
     font-style: italic;
+<<<<<<< HEAD
     background: #f0fdfa;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     border: 1px solid #b2ebf2;
+=======
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -432,7 +604,11 @@
     font-size: 1rem;
     line-height: 1.7;
     padding-left: 1rem;
+<<<<<<< HEAD
     border-left: 2px solid #b2ebf2;
+=======
+    border-left: 2px solid #e2e8f0;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-top: 1rem;
     word-wrap: break-word;
 }
@@ -466,7 +642,11 @@
     
     .cv-professional .cv-sidebar {
         width: 100%;
+<<<<<<< HEAD
         background: #0a1628 !important;
+=======
+        background: #0f172a !important;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         padding: 2rem;

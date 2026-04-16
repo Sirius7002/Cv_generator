@@ -1,7 +1,10 @@
 /* ============================================
    TEMPLATE CRÉATIF - CVBuilder
    Design original et expressif - Photo dans header
+<<<<<<< HEAD
    Palette Turquoise créatif : #00b4d8 / #06d6a0
+=======
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 ============================================ */
 .cv-preview.cv-creative {
     width: 210mm;
@@ -33,7 +36,11 @@
 
 /* Header avec photo à gauche */
 .cv-creative .cv-header {
+<<<<<<< HEAD
     background: linear-gradient(135deg, #00b4d8 0%, #0096c7 100%);
+=======
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     color: white;
     padding: 2.5rem 3.5rem;
     position: relative;
@@ -50,8 +57,13 @@
     left: 0;
     width: 100%;
     height: 100%;
+<<<<<<< HEAD
     background: radial-gradient(circle at 30% 50%, rgba(6, 214, 160, 0.3) 0%, transparent 50%),
                 radial-gradient(circle at 70% 20%, rgba(144, 224, 239, 0.2) 0%, transparent 50%);
+=======
+    background: radial-gradient(circle at 30% 50%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 50%);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-creative .header-content {
@@ -77,9 +89,15 @@
     border: 6px solid rgba(255, 255, 255, 0.25);
     box-shadow: 
         0 15px 40px rgba(0, 0, 0, 0.3),
+<<<<<<< HEAD
         0 0 0 10px rgba(6, 214, 160, 0.2),
         0 0 0 20px rgba(144, 224, 239, 0.1);
     background: linear-gradient(135deg, #00b4d8, #06d6a0, #48cae4);
+=======
+        0 0 0 10px rgba(236, 72, 153, 0.2),
+        0 0 0 20px rgba(245, 158, 11, 0.1);
+    background: linear-gradient(135deg, #8b5cf6, #ec4899, #f59e0b);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     position: relative;
 }
 
@@ -104,7 +122,11 @@
     margin-bottom: 0.5rem;
     letter-spacing: -0.5px;
     line-height: 1.1;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #ffffff, #e0f7fa);
+=======
+    background: linear-gradient(135deg, #ffffff, #f0f0f0);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -134,7 +156,11 @@
 /* Colonne latérale */
 .cv-creative .cv-sidebar {
     width: 35%;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #0096c7 0%, #0077b6 100%);
+=======
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     color: white;
     padding: 2.5rem 2rem;
     position: relative;
@@ -148,7 +174,11 @@
     left: 0;
     width: 100%;
     height: 5px;
+<<<<<<< HEAD
     background: linear-gradient(90deg, #06d6a0, #48cae4, #00b4d8);
+=======
+    background: linear-gradient(90deg, #ec4899, #f59e0b, #8b5cf6);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Sections dans sidebar */
@@ -177,7 +207,11 @@
 }
 
 .cv-creative .sidebar-title i {
+<<<<<<< HEAD
     color: #06d6a0;
+=======
+    color: #fbbf24;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-size: 1.1rem;
     width: 35px;
     height: 35px;
@@ -209,11 +243,19 @@
 .cv-creative .contact-item:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateX(5px);
+<<<<<<< HEAD
     border-color: rgba(6, 214, 160, 0.3);
 }
 
 .cv-creative .contact-item i {
     color: #06d6a0;
+=======
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.cv-creative .contact-item i {
+    color: #fbbf24;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-size: 1.1rem;
     width: 25px;
     flex-shrink: 0;
@@ -261,7 +303,11 @@
     left: 0;
     height: 100%;
     width: var(--skill-level, 70%);
+<<<<<<< HEAD
     background: linear-gradient(90deg, #06d6a0, #48cae4);
+=======
+    background: linear-gradient(90deg, #f59e0b, #ec4899);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 4px;
     transition: width 1s ease-in-out;
 }
@@ -279,7 +325,11 @@
 .cv-creative .language-item:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateX(5px);
+<<<<<<< HEAD
     border-color: rgba(6, 214, 160, 0.3);
+=======
+    border-color: rgba(251, 191, 36, 0.3);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-creative .language-header {
@@ -296,7 +346,11 @@
 }
 
 .cv-creative .language-level {
+<<<<<<< HEAD
     color: #06d6a0;
+=======
+    color: #fbbf24;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-size: 0.8rem;
     font-weight: 600;
     background: rgba(255, 255, 255, 0.1);
@@ -319,9 +373,15 @@
 }
 
 .cv-creative .language-dot.filled {
+<<<<<<< HEAD
     background: #06d6a0;
     transform: scale(1.2);
     border-color: rgba(6, 214, 160, 0.5);
+=======
+    background: #f59e0b;
+    transform: scale(1.2);
+    border-color: rgba(245, 158, 11, 0.5);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Intérêts dans sidebar */
@@ -346,12 +406,20 @@
 .cv-creative .interest-item:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-3px);
+<<<<<<< HEAD
     border-color: rgba(6, 214, 160, 0.3);
+=======
+    border-color: rgba(251, 191, 36, 0.3);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-creative .interest-item i {
     font-size: 1.5rem;
+<<<<<<< HEAD
     color: #06d6a0;
+=======
+    color: #fbbf24;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-bottom: 0.5rem;
 }
 
@@ -382,24 +450,40 @@
     gap: 1rem;
     padding-bottom: 1rem;
     border-bottom: 3px solid;
+<<<<<<< HEAD
     border-image: linear-gradient(90deg, #00b4d8, #06d6a0) 1;
+=======
+    border-image: linear-gradient(90deg, #8b5cf6, #ec4899) 1;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-creative .title-icon {
     width: 45px;
     height: 45px;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #00b4d8, #06d6a0);
+=======
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 1.3rem;
+<<<<<<< HEAD
     box-shadow: 0 5px 15px rgba(0, 180, 216, 0.3);
 }
 
 .cv-creative .title-text {
     background: linear-gradient(135deg, #00b4d8, #06d6a0);
+=======
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+}
+
+.cv-creative .title-text {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -417,9 +501,15 @@
     line-height: 1.8;
     color: #4b5563;
     padding: 2rem;
+<<<<<<< HEAD
     background: linear-gradient(135deg, rgba(0, 180, 216, 0.06), rgba(6, 214, 160, 0.06));
     border-radius: 16px;
     border-left: 5px solid #00b4d8;
+=======
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(236, 72, 153, 0.08));
+    border-radius: 16px;
+    border-left: 5px solid #8b5cf6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-weight: 500;
 }
 
@@ -521,21 +611,35 @@
     gap: 1.5rem;
     margin-bottom: 2rem;
     padding: 1.5rem;
+<<<<<<< HEAD
     background: #f0fdfa;
     border-radius: 15px;
     border: 2px solid rgba(0, 180, 216, 0.1);
+=======
+    background: #f9fafb;
+    border-radius: 15px;
+    border: 2px solid rgba(139, 92, 246, 0.1);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transition: all 0.3s ease;
 }
 
 .cv-creative .education-item-creative:hover {
     transform: translateX(10px);
+<<<<<<< HEAD
     background: linear-gradient(135deg, rgba(0, 180, 216, 0.08), rgba(6, 214, 160, 0.08));
+=======
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-creative .education-icon {
     width: 55px;
     height: 55px;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #00b4d8, #06d6a0);
+=======
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -567,6 +671,7 @@
 }
 
 .cv-creative .school {
+<<<<<<< HEAD
     color: #00b4d8;
     font-weight: 600;
     font-size: 1.05rem;
@@ -581,13 +686,33 @@
     border: 1px solid #b2ebf2;
 }
 
+=======
+    color: #8b5cf6;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.cv-creative .year {
+    color: #6b7280;
+    font-size: 0.9rem;
+    background: white;
+    padding: 0.3rem 1rem;
+    border-radius: 15px;
+    border: 1px solid #e5e7eb;
+}
+
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 .cv-creative .education-description {
     color: #6b7280;
     font-size: 0.95rem;
     line-height: 1.6;
     margin-top: 0.5rem;
     padding-top: 0.5rem;
+<<<<<<< HEAD
     border-top: 1px solid #b2ebf2;
+=======
+    border-top: 1px solid #e5e7eb;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Animations */
@@ -615,13 +740,21 @@
     }
     
     .cv-creative .cv-header {
+<<<<<<< HEAD
         background: linear-gradient(135deg, #00b4d8 0%, #0096c7 100%) !important;
+=======
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
     
     .cv-creative .cv-sidebar {
+<<<<<<< HEAD
         background: linear-gradient(135deg, #0096c7 0%, #0077b6 100%) !important;
+=======
+        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }

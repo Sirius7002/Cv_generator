@@ -174,8 +174,11 @@ body::before {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+<<<<<<< HEAD
     position: relative;
     z-index: 1;
+=======
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* ============================================
@@ -874,7 +877,11 @@ body::before {
 
 .remove-item:hover {
     color: var(--color-danger);
+<<<<<<< HEAD
     background: rgba(239, 71, 111, 0.1);
+=======
+    background: rgba(249, 65, 68, 0.1);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Évaluation langues */
@@ -1204,10 +1211,14 @@ body::before {
 .cv-placeholder i {
     font-size: 4rem;
     margin-bottom: var(--space-md);
+<<<<<<< HEAD
     background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-ultra-light));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+=======
+    color: var(--color-lighter-gray);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-placeholder h3 {
@@ -1668,10 +1679,13 @@ body::before {
         width: 100%;
         justify-content: center;
         margin-top: var(--space-sm);
+<<<<<<< HEAD
     }
     
     .theme-switch-label {
         display: none;
+=======
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     }
     
     .templates-grid {
@@ -1741,7 +1755,10 @@ body::before {
         grid-template-columns: 1fr;
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 /* ============================================
    RÈGLES D'ADAPTATION DU TEXTE
    Pour tous les templates
@@ -1782,7 +1799,11 @@ body::before {
     white-space: pre-line;
 }
 
+<<<<<<< HEAD
 /* Pour les petits écrans */
+=======
+/* Pour les petites écrans */
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 @media (max-width: 768px) {
     .cv-preview .experience-header,
     .cv-preview .education-header {
@@ -1806,7 +1827,11 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
+<<<<<<< HEAD
     background: rgba(10, 22, 40, 0.8);
+=======
+    background: rgba(0, 0, 0, 0.7);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     display: none;
     justify-content: center;
     align-items: center;
@@ -1818,6 +1843,7 @@ body::before {
     display: flex;
 }
 
+<<<<<<< HEAD
 /* ============================================
    SCROLLBAR CUSTOM
 ============================================ */
@@ -1846,4 +1872,105 @@ body::before {
 ::selection {
     background: rgba(0, 180, 216, 0.25);
     color: var(--text-primary);
+=======
+.loading-content {
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4361ee;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loading-message {
+    font-size: 1.1rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.success {
+    border-left: 4px solid #10b981;
+}
+
+.notification.error {
+    border-left: 4px solid #ef4444;
+}
+
+.notification.warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.notification.info {
+    border-left: 4px solid #3b82f6;
+}
+
+.notification i {
+    font-size: 1.2rem;
+}
+
+.notification.success i {
+    color: #10b981;
+}
+
+.notification.error i {
+    color: #ef4444;
+}
+
+.notification.warning i {
+    color: #f59e0b;
+}
+
+.notification.info i {
+    color: #3b82f6;
+}
+
+.notification span {
+    flex: 1;
+    font-size: 0.95rem;
+    color: #1e293b;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }

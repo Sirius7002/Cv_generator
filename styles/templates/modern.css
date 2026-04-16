@@ -1,7 +1,11 @@
 /* ============================================
    TEMPLATE MODERNE - CVBuilder Pro
    Design épuré et contemporain - Version Colonne
+<<<<<<< HEAD
    Palette Turquoise : #00b4d8 / #06d6a0
+=======
+   Palette moderne : Violet/Oranges vibrants
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 ============================================ */
 .cv-preview.cv-modern {
     width: 210mm;
@@ -29,9 +33,15 @@
 /* ===== COLONNE GAUCHE ===== */
 .cv-modern .cv-sidebar {
     width: 35%;
+<<<<<<< HEAD
     background: linear-gradient(135deg, #f0fdfa 0%, #e0f7fa 100%);
     padding: 2.5rem;
     border-right: 2px solid #b2ebf2;
+=======
+    background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%);
+    padding: 2.5rem;
+    border-right: 2px solid #e0f2fe;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Photo dans sidebar */
@@ -42,8 +52,13 @@
     border-radius: 50%;
     overflow: hidden;
     border: 6px solid #ffffff;
+<<<<<<< HEAD
     box-shadow: 0 15px 40px rgba(0, 180, 216, 0.2);
     background: linear-gradient(135deg, #00b4d8 0%, #06d6a0 100%);
+=======
+    box-shadow: 0 15px 40px rgba(124, 58, 237, 0.15);
+    background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-modern .sidebar-photo img {
@@ -65,17 +80,29 @@
     font-family: 'Poppins', sans-serif;
     font-size: 1.2rem;
     font-weight: 600;
+<<<<<<< HEAD
     color: #0096c7;
+=======
+    color: #7c3aed;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding-bottom: 0.75rem;
+<<<<<<< HEAD
     border-bottom: 2px solid #b2ebf2;
 }
 
 .cv-modern .sidebar-title i {
     background: linear-gradient(135deg, #00b4d8, #06d6a0);
+=======
+    border-bottom: 2px solid #e0e7ff;
+}
+
+.cv-modern .sidebar-title i {
+    background: linear-gradient(135deg, #8b5cf6, #d946ef);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     width: 36px;
     height: 36px;
     border-radius: 10px;
@@ -107,7 +134,11 @@
 .cv-modern .sidebar-content .contact-item i {
     width: 20px;
     text-align: center;
+<<<<<<< HEAD
     color: #00b4d8;
+=======
+    color: #8b5cf6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     font-size: 1.1rem;
 }
 
@@ -133,14 +164,22 @@
 .cv-modern .sidebar-skill-bar {
     width: 100%;
     height: 8px;
+<<<<<<< HEAD
     background: #b2ebf2;
+=======
+    background: #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 4px;
     overflow: hidden;
 }
 
 .cv-modern .sidebar-skill-level {
     height: 100%;
+<<<<<<< HEAD
     background: linear-gradient(90deg, #00b4d8, #06d6a0);
+=======
+    background: linear-gradient(90deg, #8b5cf6, #d946ef);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 4px;
     transition: width 1s ease-in-out;
 }
@@ -170,9 +209,15 @@
 }
 
 .cv-modern .sidebar-language-level {
+<<<<<<< HEAD
     color: #0096c7;
     font-size: 0.85rem;
     background: #e0f7fa;
+=======
+    color: #6b7280;
+    font-size: 0.85rem;
+    background: #f3f4f6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     padding: 0.35rem 0.75rem;
     border-radius: 12px;
     font-weight: 500;
@@ -181,14 +226,22 @@
 .cv-modern .sidebar-language-bar {
     width: 100%;
     height: 8px;
+<<<<<<< HEAD
     background: #b2ebf2;
+=======
+    background: #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 4px;
     overflow: hidden;
 }
 
 .cv-modern .sidebar-language-progress {
     height: 100%;
+<<<<<<< HEAD
     background: linear-gradient(90deg, #00b4d8, #06d6a0);
+=======
+    background: linear-gradient(90deg, #8b5cf6, #d946ef);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 4px;
     transition: width 1s ease-in-out;
 }
@@ -208,21 +261,36 @@
     padding: 1.25rem 0.75rem;
     background: white;
     border-radius: 12px;
+<<<<<<< HEAD
     border: 1px solid #b2ebf2;
+=======
+    border: 1px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transition: all 0.3s ease;
 }
 
 .cv-modern .sidebar-interest-item:hover {
     transform: translateY(-3px);
+<<<<<<< HEAD
     box-shadow: 0 8px 20px rgba(0, 180, 216, 0.15);
     border-color: #48cae4;
+=======
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.15);
+    border-color: #c4b5fd;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-modern .sidebar-interest-item i {
     font-size: 1.5rem;
+<<<<<<< HEAD
     color: #00b4d8;
     margin-bottom: 0.75rem;
     background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+=======
+    color: #8b5cf6;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -247,7 +315,11 @@
 .cv-modern .main-header {
     margin-bottom: 2.5rem;
     padding-bottom: 2rem;
+<<<<<<< HEAD
     border-bottom: 2px solid #b2ebf2;
+=======
+    border-bottom: 2px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-modern .cv-name {
@@ -262,7 +334,11 @@
 .cv-modern .cv-profession {
     font-size: 1.3rem;
     font-weight: 500;
+<<<<<<< HEAD
     color: #00b4d8;
+=======
+    color: #8b5cf6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     letter-spacing: 0.5px;
 }
 
@@ -279,17 +355,29 @@
     font-family: 'Poppins', sans-serif;
     font-size: 1.3rem;
     font-weight: 600;
+<<<<<<< HEAD
     color: #0096c7;
+=======
+    color: #8b5cf6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
     padding-bottom: 0.75rem;
+<<<<<<< HEAD
     border-bottom: 2px solid #b2ebf2;
 }
 
 .cv-modern .section-title i {
     background: linear-gradient(135deg, #00b4d8, #06d6a0);
+=======
+    border-bottom: 2px solid #e0e7ff;
+}
+
+.cv-modern .section-title i {
+    background: linear-gradient(135deg, #8b5cf6, #d946ef);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     width: 40px;
     height: 40px;
     border-radius: 10px;
@@ -305,10 +393,17 @@
     font-size: 1.05rem;
     line-height: 1.8;
     color: #4b5563;
+<<<<<<< HEAD
     background: #f0fdfa;
     padding: 1.5rem;
     border-radius: 12px;
     border-left: 4px solid #00b4d8;
+=======
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #8b5cf6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 /* Expériences */
@@ -317,7 +412,11 @@
     padding: 1.5rem;
     background: white;
     border-radius: 12px;
+<<<<<<< HEAD
     border: 1px solid #b2ebf2;
+=======
+    border: 1px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -330,14 +429,23 @@
     top: 0;
     width: 4px;
     height: 100%;
+<<<<<<< HEAD
     background: linear-gradient(to bottom, #00b4d8, #06d6a0);
+=======
+    background: linear-gradient(to bottom, #8b5cf6, #d946ef);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 2px;
 }
 
 .cv-modern .experience-item:hover {
     transform: translateY(-3px);
+<<<<<<< HEAD
     box-shadow: 0 15px 30px rgba(0, 180, 216, 0.12);
     border-color: #48cae4;
+=======
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
+    border-color: #c4b5fd;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-modern .experience-header {
@@ -361,7 +469,11 @@
 
 .cv-modern .company {
     font-weight: 500;
+<<<<<<< HEAD
     color: #00b4d8;
+=======
+    color: #8b5cf6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-modern .period {
@@ -373,7 +485,11 @@
     line-height: 1.7;
     font-size: 1rem;
     padding-left: 1rem;
+<<<<<<< HEAD
     border-left: 2px solid #b2ebf2;
+=======
+    border-left: 2px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-top: 1rem;
 }
 
@@ -383,7 +499,11 @@
     padding: 1.5rem;
     background: white;
     border-radius: 12px;
+<<<<<<< HEAD
     border: 1px solid #b2ebf2;
+=======
+    border: 1px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -396,14 +516,23 @@
     top: 0;
     width: 4px;
     height: 100%;
+<<<<<<< HEAD
     background: linear-gradient(to bottom, #00b4d8, #06d6a0);
+=======
+    background: linear-gradient(to bottom, #8b5cf6, #d946ef);
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     border-radius: 2px;
 }
 
 .cv-modern .education-item:hover {
     transform: translateY(-3px);
+<<<<<<< HEAD
     box-shadow: 0 15px 30px rgba(0, 180, 216, 0.12);
     border-color: #48cae4;
+=======
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
+    border-color: #c4b5fd;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-modern .education-header {
@@ -427,7 +556,11 @@
 
 .cv-modern .school {
     font-weight: 500;
+<<<<<<< HEAD
     color: #00b4d8;
+=======
+    color: #8b5cf6;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
 }
 
 .cv-modern .year {
@@ -439,7 +572,11 @@
     line-height: 1.7;
     font-size: 1rem;
     padding-left: 1rem;
+<<<<<<< HEAD
     border-left: 2px solid #b2ebf2;
+=======
+    border-left: 2px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     margin-top: 1rem;
 }
 
@@ -470,10 +607,17 @@
     }
     
     .cv-modern .cv-sidebar {
+<<<<<<< HEAD
         background: #f0fdfa !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         border-right: 1px solid #b2ebf2;
+=======
+        background: #f8fafc !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        border-right: 1px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
     }
     
     .cv-modern * {
@@ -491,7 +635,11 @@
     .cv-modern .cv-sidebar {
         width: 100%;
         border-right: none;
+<<<<<<< HEAD
         border-bottom: 2px solid #b2ebf2;
+=======
+        border-bottom: 2px solid #e0e7ff;
+>>>>>>> 826a55fb71e72f5dcf8ec07fce54bd6f734ddf90
         padding: 2rem;
     }
     
